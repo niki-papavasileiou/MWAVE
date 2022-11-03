@@ -7,7 +7,6 @@ import pandas as pd
 import matplotlib.ticker as ticker
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
 
 
 root = tk.Tk()
@@ -97,11 +96,11 @@ elif q in ['n', 'N','NO','no','No']:
         index=i
 
     with open(f'{path}/{real_data[index]}', 'r') as f:                                    
-       with open("most_recent.txt", "w") as f1:
+       with open("data.txt", "w") as f1:
          for line in f:
             f1.write(line)
 
-    df = pd.read_csv("most_recent.txt",delim_whitespace=True)
+    df = pd.read_csv("data.txt",delim_whitespace=True)
     df['Prec'][df['Prec']<0] = 0
 
     user = input('\t\t\t\t----------Please type what you would like to visualize----------\n\n1. AOD\n2. Precipitation\n')
