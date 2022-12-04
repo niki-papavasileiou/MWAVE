@@ -18,7 +18,6 @@ path = askdirectory(title = 'select folder')
 
 fold_files = os.listdir(path)
 
-
 def mmap(user):
 
     fig = plt.figure(figsize=(8,8))
@@ -39,12 +38,12 @@ def mmap(user):
     center = [16.581,38.634]
     width = 5.                                   #horizontal axis
     height = 2.501828848                         #vertical axis 
-    angle = -50.                                  #anti-clockwise rotation
+    angle = -50.                                 #anti-clockwise rotation
     e = patches.Ellipse(xy=center, width=width, height=height, angle = 180+angle,  edgecolor='r', facecolor='none')
     ax.add_patch(e)
+    plt.show()
 
-    Area = 3.142 * width * height
-    #print(Area)  
+    Area = 3.142 * width * height 
 
     filter = df.filter(['LON','LAT'], axis=1)   
     xy = np.array(filter)  
@@ -54,28 +53,25 @@ def mmap(user):
     
     xc = xy[:,0] - center[0]
     yc = xy[:,1] - center[1]
+    
     xct = cosine * xc - sine * yc
     yct = sine * xc + cosine * yc  
-    
+
     rad_cc = (xct**2/(width/2.)**2) + (yct**2/(height/2.)**2)   
     
     yo = np.array(xy)
-    test = yo[np.where(rad_cc <= 1.)[0]] 
+    ellipse_points = yo[np.where(rad_cc <= 1.)[0]] 
 
+    ellipse_df = df[df['LON'].isin(ellipse_points[:,0]) & df['LAT'].isin(ellipse_points[:,1])]
+    
     og = sys.stdout
 
-    with open("ell_points.txt",'w') as f:
+    with open("ellipse_data.txt",'w') as f:
         sys.stdout = f 
         np.set_printoptions(threshold=np.inf)
-        print(test)
+        print(ellipse_df.to_string())
         sys.stdout = og
 
-    plt.show()
-
-    #new = df.filter(['LON','LAT','AOD550nm'], axis=1)   
-    #newnew = new['AOD550nm'].idxmax()
-    #maxrow = np.array(new.loc[newnew])
-    #center = maxrow[0:2]
 
 def check(user):
    
