@@ -15,7 +15,6 @@ import sys
 root = tk.Tk()
 root.withdraw()
 path = askdirectory(title = 'select folder')        
-
 fold_files = os.listdir(path)
 
 def mmap(user):
@@ -35,10 +34,13 @@ def mmap(user):
     ax.coastlines()
     cbar = plt.colorbar(cs)
 
-    center = [16.581,38.634]
-    width = 5.                                   #horizontal axis
-    height = 2.501828848                         #vertical axis 
-    angle = -50.                                 #anti-clockwise rotation
+    center_x = float(input("Enter centre's latitude (DD): \n"))
+    center_y = float(input("Enter centre's longitude (DD): \n"))
+    width = float(input("Enter horizontal axis: \n"))
+    height = float(input("Enter vertical axis: \n"))
+    angle = float(input("Enter angle: \n"))
+
+    center = [center_x,center_y]
     e = patches.Ellipse(xy=center, width=width, height=height, angle = 180+angle,  edgecolor='r', facecolor='none')
     ax.add_patch(e)
     plt.show()
