@@ -74,7 +74,10 @@ def mmap(user):
         print(ellipse_df.to_string())
         sys.stdout = og
 
-
+    print("\n\nInfo \n\n")
+    Area = 3.142 * width * height 
+    print("area:",Area, "km^2\n")
+    
 def check(user):
    
     if user in ['aod','AOD', 'Aod', 'AoD','1']:
