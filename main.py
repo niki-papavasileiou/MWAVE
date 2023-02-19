@@ -125,21 +125,18 @@ if q in ['Y','y', 'YES','yes']:
 
     check(user)
     
-##################
     new_index = [index, index-1, index-2,index-3, index-4, index-5,index-7,index-8]
     pd.options.mode.chained_assignment = None  
 
+    f2 = open("2hfiles.txt", "w")
     for z in new_index:
         with open(f'{path}/{real_data[z]}', 'r'):
+            sys.stdout = f2
+            ellipse_df['file'] = np.array(real_data[z])
+            np.set_printoptions(threshold=np.inf)
+            print(ellipse_df.to_string())
+            sys.stdout = og
 
-            with open("2hfiles.txt", "a") as f2:
-                sys.stdout = f2
-                ellipse_df['file'] = np.array(real_data[z])
-                np.set_printoptions(threshold=np.inf)
-                print(ellipse_df.to_string())
-                sys.stdout = og
-####################
-    
 
 elif q in ['n', 'N','NO','no','No']:
 
