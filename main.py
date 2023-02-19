@@ -62,8 +62,10 @@ def mmap(user):
     rad_cc = (xct**2/(width/2.)**2) + (yct**2/(height/2.)**2)   
     
     yo = np.array(xy)
+    global ellipse_points
     ellipse_points = yo[np.where(rad_cc <= 1.)[0]] 
 
+    global ellipse_df
     ellipse_df = df[df['LON'].isin(ellipse_points[:,0]) & df['LAT'].isin(ellipse_points[:,1])]
     
     og = sys.stdout
@@ -77,6 +79,7 @@ def mmap(user):
     print("\n\nInfo \n\n")
     Area = 3.142 * width * height 
     print("area:",Area, "km^2\n")
+
     
 def check(user):
    
@@ -109,8 +112,6 @@ if q in ['Y','y', 'YES','yes']:
             index = i
         i+=1
 
-    print(real_data[index])
-
     with open(f'{path}/{real_data[index]}', 'r') as f:                                    
      with open("most_recent.txt", "w") as f1:
         for line in f:
@@ -122,6 +123,18 @@ if q in ['Y','y', 'YES','yes']:
     user = input('\t\t\t\t----------Please type what you would like to visualize----------\n\n1. AOD\n2. Precipitation\n')
 
     check(user)
+    
+##################
+    new_index = [index, index-1, index-2,index-3, index-4, index-5,index-7,index-8]
+    
+    for z in new_index:
+        with open(f'{path}/{real_data[z]}', 'r') as f:
+            with open("2hfiles.txt", "a") as f2:
+                df = pd.read_csv(f ,delim_whitespace=True)
+                ellipse_df = df[df['LON'].isin(ellipse_points[:,0]) & df['LAT'].isin(ellipse_points[:,1])]
+                ellipse_df['file'] = np.array(real_data[z])
+                f2.write(str(ellipse_df))
+####################
     
 
 elif q in ['n', 'N','NO','no','No']:
