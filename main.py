@@ -68,6 +68,7 @@ def mmap(user):
     global ellipse_df
     ellipse_df = df[df['LON'].isin(ellipse_points[:,0]) & df['LAT'].isin(ellipse_points[:,1])]
     
+    global og
     og = sys.stdout
 
     with open("ellipse_data.txt",'w') as f:
@@ -126,14 +127,17 @@ if q in ['Y','y', 'YES','yes']:
     
 ##################
     new_index = [index, index-1, index-2,index-3, index-4, index-5,index-7,index-8]
-    
+    pd.options.mode.chained_assignment = None  
+
     for z in new_index:
-        with open(f'{path}/{real_data[z]}', 'r') as f:
+        with open(f'{path}/{real_data[z]}', 'r'):
+
             with open("2hfiles.txt", "a") as f2:
-                df = pd.read_csv(f ,delim_whitespace=True)
-                ellipse_df = df[df['LON'].isin(ellipse_points[:,0]) & df['LAT'].isin(ellipse_points[:,1])]
+                sys.stdout = f2
                 ellipse_df['file'] = np.array(real_data[z])
-                f2.write(str(ellipse_df))
+                np.set_printoptions(threshold=np.inf)
+                print(ellipse_df.to_string())
+                sys.stdout = og
 ####################
     
 
