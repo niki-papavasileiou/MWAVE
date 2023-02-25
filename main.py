@@ -10,6 +10,7 @@ from matplotlib.patches import Ellipse
 import matplotlib.patches as patches
 import numpy as np
 import sys
+import math  
 
 
 root = tk.Tk()
@@ -82,9 +83,20 @@ def mmap(user):
     print("area:",Area, "km^2\n")
 
     cities_df = pd.read_csv("cities.csv", sep = ',')
-    cities = cities_df[cities_df['lng'].isin(ellipse_points[:,0]) & cities_df['lat'].isin(ellipse_points[:,1])]
+
+    d = 3
+
+    def truncate(f, n):
+        return math.floor(f * 10 ** n) / 10 ** n
+    
+    city_lat = cities_df['lat'].astype(float).apply(lambda number: truncate(number, d))
+    city_lng = cities_df['lng'].astype(float).apply(lambda number: truncate(number, d))
+    
+    cities = cities_df[city_lng.isin(ellipse_points[:,0]) & city_lat.isin(ellipse_points[:,1])]
+    pd.options.mode.chained_assignment = None
     cities['city_info'] = cities['city'] + ', ' + cities['admin_name'] + ', ' + cities['country']
     print(cities['city_info'].to_string(index=False))
+
 
 def check(user):
    
@@ -129,6 +141,7 @@ if q in ['Y','y', 'YES','yes']:
 
     check(user)
     
+
     new_index = [index, index-1, index-2,index-3, index-4, index-5,index-7,index-8]
     pd.options.mode.chained_assignment = None  
 
@@ -140,7 +153,7 @@ if q in ['Y','y', 'YES','yes']:
             np.set_printoptions(threshold=np.inf)
             print(ellipse_df.to_string())
             sys.stdout = og
-    
+
 
 elif q in ['n', 'N','NO','no','No']:
 
