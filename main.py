@@ -81,7 +81,7 @@ def mmap(user):
     Area = 3.142 * width * height 
     print("area:",Area, "km^2\n")
 
-    cities_df = pd.read_csv("gr.csv", sep = ',')
+    cities_df = pd.read_csv("cities.csv", sep = ',')
     cities = cities_df[cities_df['lng'].isin(ellipse_points[:,0]) & cities_df['lat'].isin(ellipse_points[:,1])]
     cities['city_info'] = cities['city'] + ', ' + cities['admin_name'] + ', ' + cities['country']
     print(cities['city_info'].to_string(index=False))
