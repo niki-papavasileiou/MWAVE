@@ -81,7 +81,17 @@ def mmap(user):
     Area = 3.142 * width * height 
     print("area:",Area, "km^2\n")
 
-    
+#########################################################CITIES##############
+    cities_df = pd.read_csv("gr.csv", sep = ',')
+    cities = cities_df[cities_df['lng'].isin(ellipse_points[:,0]) & cities_df['lat'].isin(ellipse_points[:,1])]
+    cities_new = cities[['city','admin_name','country']]
+    #city = cities['city']
+    #country = cities['country']
+    #admin_name = cities['admin_name']
+    print(cities_new)
+
+#############################################################################
+
 def check(user):
    
     if user in ['aod','AOD', 'Aod', 'AoD','1']:
@@ -125,6 +135,7 @@ if q in ['Y','y', 'YES','yes']:
 
     check(user)
     
+##################
     new_index = [index, index-1, index-2,index-3, index-4, index-5,index-7,index-8]
     pd.options.mode.chained_assignment = None  
 
@@ -136,7 +147,8 @@ if q in ['Y','y', 'YES','yes']:
             np.set_printoptions(threshold=np.inf)
             print(ellipse_df.to_string())
             sys.stdout = og
-
+####################
+    
 
 elif q in ['n', 'N','NO','no','No']:
 
