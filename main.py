@@ -11,6 +11,7 @@ import matplotlib.patches as patches
 import numpy as np
 import sys
 import math  
+from math import radians, cos, sin, asin, sqrt
 
 
 root = tk.Tk()
@@ -46,20 +47,15 @@ def mmap(user):
     ax.add_patch(e)
     plt.show()
 
-    Area = 3.142 * width * height 
-
     filter = df.filter(['LON','LAT'], axis=1)   
     xy = np.array(filter)  
 
     cosine = np.cos(np.radians(180. - angle))
-    sine = np.sin(np.radians(180. - angle))
-    
+    sine = np.sin(np.radians(180. - angle)) 
     xc = xy[:,0] - center[0]
-    yc = xy[:,1] - center[1]
-    
+    yc = xy[:,1] - center[1]  
     xct = cosine * xc - sine * yc
     yct = sine * xc + cosine * yc  
-
     rad_cc = (xct**2/(width/2.)**2) + (yct**2/(height/2.)**2)   
     
     yo = np.array(xy)
@@ -78,14 +74,33 @@ def mmap(user):
         print(ellipse_df.to_string())
         sys.stdout = og
 
+    lat1_w = radians(center_y)
+    lat2_w = radians(center_y+width/2)
+    lng1_w = radians(center_x)
+    lng2_w = radians(center_x+width/2)
+    lat1_h = radians(center_y)
+    lat2_h = radians(center_y+height/2)
+    lng1_h = radians(center_x)
+    lng2_h = radians(center_x+height/2)
+
+    dlat_w = lat2_w - lat1_w
+    dlng_w = lng2_w - lng1_w
+    a_w = sin(dlat_w / 2)**2 + cos(lat1_w) * cos(lat2_w) * sin(dlng_w / 2)**2
+    c_w = 2 * asin(sqrt(a_w)) 
+    dlat_h = lat2_h - lat1_h
+    dlng_h = lng2_h - lng1_h
+    a_h = sin(dlat_h / 2)**2 + cos(lat1_h) * cos(lat2_h) * sin(dlng_h / 2)**2
+    c_h = 2 * asin(sqrt(a_h)) 
+    r = 6371
+    w =c_w * r
+    h =c_h * r
+
     print("\n\nInfo \n\n")
-    Area = 3.142 * width * height 
+    Area = 3.142 * w/2 * h/2 
     print("area:",Area, "km^2\n")
 
     cities_df = pd.read_csv("cities.csv", sep = ',')
-
     d = 3
-
     def truncate(f, n):
         return math.floor(f * 10 ** n) / 10 ** n
     
@@ -141,7 +156,7 @@ if q in ['Y','y', 'YES','yes']:
 
     check(user)
     
-
+##################
     new_index = [index, index-1, index-2,index-3, index-4, index-5,index-7,index-8]
     pd.options.mode.chained_assignment = None  
 
@@ -153,7 +168,8 @@ if q in ['Y','y', 'YES','yes']:
             np.set_printoptions(threshold=np.inf)
             print(ellipse_df.to_string())
             sys.stdout = og
-
+####################
+    
 
 elif q in ['n', 'N','NO','no','No']:
 
