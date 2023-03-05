@@ -102,6 +102,7 @@ def display(user):
         print(ellipse_df.to_string())
         sys.stdout = og
 
+    area()
     cities_()
     plt.show(block=False)
 
@@ -125,8 +126,8 @@ def cities_():
 
     label_frame_city = LabelFrame(root, text='Affected Cities')
     label_frame_city.pack(expand='yes', fill='both')
-    text_city = st.ScrolledText(root, width = 35, height = 10, font = ("calibri",10))
-    text_city.place(x=35,y=80)
+    text_city = st.ScrolledText(root, width = 35, height = 8, font = ("calibri",10))
+    text_city.place(x=35,y=210)
     text_city.insert(tk.INSERT, str(affected_cities))
     text_city.configure(state ='disabled')
 
@@ -154,11 +155,19 @@ def area():
     h =c_h * r
 
     Area = 3.142 * w/2 * h/2 
-    label_area.config(text="area: " +str(round(Area, 3)) + "  km^2")
+    area_text = "area: " +str(round(Area, 3)) + "  km^2"
+
+    label_frame_area = LabelFrame(root, text='Info')
+    label_frame_area.pack(expand='yes', fill='both')
+    text_area = st.ScrolledText(root, width = 20, height = 5, font = ("calibri",10))
+    text_area.place(x=35,y=15)
+    text_area.insert(tk.INSERT, area_text)
+    text_area.configure(state ='disabled')
 
 root = Tk()
-root.geometry('520x350')
+root.geometry('520x380')
 root.title('gui')
+root.resizable(0,0)
 
 menubar = Menu(root)
 
@@ -176,11 +185,6 @@ display_ = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Display', menu=display_)
 display_.add_command(label='AOD', command = lambda:display('AOD550nm'))
 display_.add_command(label='Precipitation', command = lambda:display('Prec'))
-
-area_tk = tk.Button(root, text="Info", fg="white", bg="gray", command=area)
-area_tk.place(x=10, y=20)
-label_area=Label(root,padx = 10, pady=20,font=("calibri",10),borderwidth=3, relief="sunken")
-label_area.pack()
 
 root.config(menu=menubar)
 root.mainloop()
