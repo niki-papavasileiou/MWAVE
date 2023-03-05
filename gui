@@ -174,7 +174,7 @@ display_.add_command(label='Precipitation', command = lambda:display('Prec'))
 
 area_tk = tk.Button(root, text="Area (km^2)", fg="white", bg="gray", command=area)
 area_tk.place(x=10, y=20)
-label_area=Label(root,padx = 11, pady=21,font=("arial",10),borderwidth=3, relief="sunken")
+label_area=Label(root,padx = 11, pady=21,font=("calibri",10),borderwidth=3, relief="sunken")
 label_area.pack()
 
 root.config(menu=menubar)
