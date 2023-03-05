@@ -14,14 +14,63 @@ import sys
 import math  
 from math import radians, cos, sin, asin, sqrt
 
+def clear():
+    
+    text_area.place_forget()
+    label_frame_area.pack_forget()
+    text_city.place_forget()
+    label_frame_city.pack_forget()
+    plt.close()
+
+def area():
+
+    
+    global label_frame_area,text_area
+
+    lat1_w = radians(center_y)
+    lat2_w = radians(center_y+width/2)
+    lng1_w = radians(center_x)
+    lng2_w = radians(center_x+width/2)
+    lat1_h = radians(center_y)
+    lat2_h = radians(center_y+height/2)
+    lng1_h = radians(center_x)
+    lng2_h = radians(center_x+height/2)
+
+    dlat_w = lat2_w - lat1_w
+    dlng_w = lng2_w - lng1_w
+    a_w = sin(dlat_w / 2)**2 + cos(lat1_w) * cos(lat2_w) * sin(dlng_w / 2)**2
+    c_w = 2 * asin(sqrt(a_w)) 
+    dlat_h = lat2_h - lat1_h
+    dlng_h = lng2_h - lng1_h
+    a_h = sin(dlat_h / 2)**2 + cos(lat1_h) * cos(lat2_h) * sin(dlng_h / 2)**2
+    c_h = 2 * asin(sqrt(a_h)) 
+    r = 6371
+    w =c_w * r
+    h =c_h * r
+
+    Area = 3.142 * w/2 * h/2 
+    area_text = "area: " +str(round(Area, 3)) + "  km^2"
+
+    label_frame_area = LabelFrame(root, text='Info')
+    label_frame_area.pack(expand='yes', fill='both')
+    text_area = st.ScrolledText(root, width = 20, height = 5, font = ("calibri",10))
+    text_area.place(x=35,y=15)
+    text_area.insert(tk.INSERT, area_text)
+    text_area.configure(state ='disabled')
+
 def about_window():
 
     about_win = Toplevel(root)
     about_win.title("About...")
-    about_win.geometry("200x200")
+    about_win.geometry("500x600")
+    about_win.resizable(0,0)
+
+    info_photo = tk.PhotoImage(file = 'info.png')
+    about_win.wm_iconphoto(False, info_photo)
+
     label_frame_about = LabelFrame(about_win, text='About...')
     label_frame_about.pack(expand='yes', fill='both')
-    text_about = st.ScrolledText(about_win, width = 20, height = 5, font = ("calibri",10))
+    text_about = st.ScrolledText(about_win, width = 60, height = 36, font = ("calibri",10))
     text_about.place(x=35,y=15)
     about_text = "da ptixiaki"
     text_about.insert(tk.INSERT, about_text)
@@ -117,11 +166,15 @@ def display(user):
 
     area()
     cities_()
+    global clear_button
+    clear_button = Button(root, text="clear", command=lambda: clear())
+    clear_button.place(x=460,y=320)
+
     plt.show(block=False)
 
 def cities_():
 
-    global affected_cities
+    global affected_cities,text_city, label_frame_city
 
     cities_df = pd.read_csv("cities.csv", sep = ',')
     d = 3
@@ -144,42 +197,9 @@ def cities_():
     text_city.insert(tk.INSERT, str(affected_cities))
     text_city.configure(state ='disabled')
 
-def area():
-
-    lat1_w = radians(center_y)
-    lat2_w = radians(center_y+width/2)
-    lng1_w = radians(center_x)
-    lng2_w = radians(center_x+width/2)
-    lat1_h = radians(center_y)
-    lat2_h = radians(center_y+height/2)
-    lng1_h = radians(center_x)
-    lng2_h = radians(center_x+height/2)
-
-    dlat_w = lat2_w - lat1_w
-    dlng_w = lng2_w - lng1_w
-    a_w = sin(dlat_w / 2)**2 + cos(lat1_w) * cos(lat2_w) * sin(dlng_w / 2)**2
-    c_w = 2 * asin(sqrt(a_w)) 
-    dlat_h = lat2_h - lat1_h
-    dlng_h = lng2_h - lng1_h
-    a_h = sin(dlat_h / 2)**2 + cos(lat1_h) * cos(lat2_h) * sin(dlng_h / 2)**2
-    c_h = 2 * asin(sqrt(a_h)) 
-    r = 6371
-    w =c_w * r
-    h =c_h * r
-
-    Area = 3.142 * w/2 * h/2 
-    area_text = "area: " +str(round(Area, 3)) + "  km^2"
-
-    label_frame_area = LabelFrame(root, text='Info')
-    label_frame_area.pack(expand='yes', fill='both')
-    text_area = st.ScrolledText(root, width = 20, height = 5, font = ("calibri",10))
-    text_area.place(x=35,y=15)
-    text_area.insert(tk.INSERT, area_text)
-    text_area.configure(state ='disabled')
-
 root = Tk()
 root.geometry('520x380')
-root.title('gui')
+root.title('Meteosat Observer')
 root.resizable(0,0)
 
 photo = tk.PhotoImage(file = 'icon.png')
@@ -193,14 +213,14 @@ file.add_command(label='Open...', command = open_file)
 file.add_separator()
 file.add_command(label="Exit", command=root.quit)
 
-help_ = Menu(menubar, tearoff=0)
-menubar.add_cascade(label='Help', menu=help_)
-help_.add_command(label='About...', command = about_window)
-
 display_ = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Display', menu=display_)
 display_.add_command(label='AOD', command = lambda:display('AOD550nm'))
 display_.add_command(label='Precipitation', command = lambda:display('Prec'))
+
+help_ = Menu(menubar, tearoff=0)
+menubar.add_cascade(label='Help', menu=help_)
+help_.add_command(label='About...', command = about_window)
 
 root.config(menu=menubar)
 root.mainloop()
