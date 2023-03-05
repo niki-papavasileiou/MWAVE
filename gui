@@ -169,6 +169,9 @@ root.geometry('520x380')
 root.title('gui')
 root.resizable(0,0)
 
+photo = tk.PhotoImage(file = 'icon.png')
+root.wm_iconphoto(False, photo)
+
 menubar = Menu(root)
 
 file = Menu(menubar, tearoff=0)
