@@ -14,6 +14,19 @@ import sys
 import math  
 from math import radians, cos, sin, asin, sqrt
 
+def about_window():
+
+    about_win = Toplevel(root)
+    about_win.title("About...")
+    about_win.geometry("200x200")
+    label_frame_about = LabelFrame(about_win, text='About...')
+    label_frame_about.pack(expand='yes', fill='both')
+    text_about = st.ScrolledText(about_win, width = 20, height = 5, font = ("calibri",10))
+    text_about.place(x=35,y=15)
+    about_text = "da ptixiaki"
+    text_about.insert(tk.INSERT, about_text)
+    text_about.configure(state ='disabled')
+
 def recent_file():
 
     global index, real_data
@@ -182,7 +195,7 @@ file.add_command(label="Exit", command=root.quit)
 
 help_ = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Help', menu=help_)
-help_.add_command(label='About...')
+help_.add_command(label='About...', command = about_window)
 
 display_ = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Display', menu=display_)
