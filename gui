@@ -1,5 +1,6 @@
 from tkinter import Tk, Menu
 import tkinter as tk
+from tkinter import *
 from tkinter.filedialog import askdirectory
 import os
 import pandas as pd
@@ -46,7 +47,7 @@ def display(user):
     df = pd.read_csv("most_recent.txt",delim_whitespace=True)
     df['Prec'][df['Prec']<0] = 0
 
-    fig = plt.figure(figsize=(8,8))
+    fig = plt.figure(figsize=(4,4))
 
     ax=plt.axes(projection=ccrs.PlateCarree())
 
@@ -71,7 +72,7 @@ def display(user):
     center = [center_x,center_y]
     e = patches.Ellipse(xy=center, width=width, height=height, angle = 180+angle,  edgecolor='r', facecolor='none')
     ax.add_patch(e)
-    plt.show(block=False)
+    
 
     filter = df.filter(['LON','LAT'], axis=1)   
     xy = np.array(filter)  
@@ -83,8 +84,8 @@ def display(user):
     xct = cosine * xc - sine * yc
     yct = sine * xc + cosine * yc  
     rad_cc = (xct**2/(width/2.)**2) + (yct**2/(height/2.)**2)   
-    
     yo = np.array(xy)
+
     global ellipse_points
     ellipse_points = yo[np.where(rad_cc <= 1.)[0]] 
 
@@ -100,8 +101,58 @@ def display(user):
         print(ellipse_df.to_string())
         sys.stdout = og
 
+    plt.show(block=False)
+
+def cities_():
+
+    global affected_cities
+
+    cities_df = pd.read_csv("cities.csv", sep = ',')
+    d = 3
+    def truncate(f, n):
+        return math.floor(f * 10 ** n) / 10 ** n
+    
+    city_lat = cities_df['lat'].astype(float).apply(lambda number: truncate(number, d))
+    city_lng = cities_df['lng'].astype(float).apply(lambda number: truncate(number, d))
+    
+    global cities
+    cities = cities_df[city_lng.isin(ellipse_points[:,0]) & city_lat.isin(ellipse_points[:,1])]
+    pd.options.mode.chained_assignment = None
+    cities['city_info'] = cities['city'] + ', ' + cities['admin_name'] + ', ' + cities['country']
+    affected_cities = cities['city_info'].to_string(index=False)
+    #city.config(text=str(affected_cities))
+    return str(affected_cities)
+
+def area():
+
+    lat1_w = radians(center_y)
+    lat2_w = radians(center_y+width/2)
+    lng1_w = radians(center_x)
+    lng2_w = radians(center_x+width/2)
+    lat1_h = radians(center_y)
+    lat2_h = radians(center_y+height/2)
+    lng1_h = radians(center_x)
+    lng2_h = radians(center_x+height/2)
+
+    dlat_w = lat2_w - lat1_w
+    dlng_w = lng2_w - lng1_w
+    a_w = sin(dlat_w / 2)**2 + cos(lat1_w) * cos(lat2_w) * sin(dlng_w / 2)**2
+    c_w = 2 * asin(sqrt(a_w)) 
+    dlat_h = lat2_h - lat1_h
+    dlng_h = lng2_h - lng1_h
+    a_h = sin(dlat_h / 2)**2 + cos(lat1_h) * cos(lat2_h) * sin(dlng_h / 2)**2
+    c_h = 2 * asin(sqrt(a_h)) 
+    r = 6371
+    w =c_w * r
+    h =c_h * r
+
+    #print("\n\nInfo \n\n")
+    Area = 3.142 * w/2 * h/2 
+    print("area:",Area, "km^2\n")
+    label_area.config(text=Area)
+
 root = Tk()
-root.geometry('620x250')
+root.geometry('520x350')
 root.title('gui')
 
 menubar = Menu(root)
@@ -109,6 +160,8 @@ menubar = Menu(root)
 file = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='File', menu=file)
 file.add_command(label='Open...', command = open_file)
+file.add_separator()
+file.add_command(label="Exit", command=root.quit)
 
 help_ = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Help', menu=help_)
@@ -118,6 +171,11 @@ display_ = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Display', menu=display_)
 display_.add_command(label='AOD', command = lambda:display('AOD550nm'))
 display_.add_command(label='Precipitation', command = lambda:display('Prec'))
+
+area_tk = tk.Button(root, text="Area (km^2)", fg="white", bg="gray", command=area)
+area_tk.place(x=10, y=20)
+label_area=Label(root,padx = 11, pady=21,font=("arial",10),borderwidth=3, relief="sunken")
+label_area.pack()
 
 root.config(menu=menubar)
 root.mainloop()
