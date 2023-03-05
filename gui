@@ -5,6 +5,7 @@ from tkinter.filedialog import askdirectory
 import os
 import pandas as pd
 import matplotlib.ticker as ticker
+import tkinter.scrolledtext as st
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -101,6 +102,7 @@ def display(user):
         print(ellipse_df.to_string())
         sys.stdout = og
 
+    cities_()
     plt.show(block=False)
 
 def cities_():
@@ -120,8 +122,13 @@ def cities_():
     pd.options.mode.chained_assignment = None
     cities['city_info'] = cities['city'] + ', ' + cities['admin_name'] + ', ' + cities['country']
     affected_cities = cities['city_info'].to_string(index=False)
-    label_city.config(text =str(affected_cities))
-    
+
+    label_frame_city = LabelFrame(root, text='Affected Cities')
+    label_frame_city.pack(expand='yes', fill='both')
+    text_city = st.ScrolledText(root, width = 35, height = 10, font = ("calibri",10))
+    text_city.place(x=35,y=80)
+    text_city.insert(tk.INSERT, str(affected_cities))
+    text_city.configure(state ='disabled')
 
 def area():
 
@@ -174,13 +181,6 @@ area_tk = tk.Button(root, text="Info", fg="white", bg="gray", command=area)
 area_tk.place(x=10, y=20)
 label_area=Label(root,padx = 10, pady=20,font=("calibri",10),borderwidth=3, relief="sunken")
 label_area.pack()
-
-###
-city_tk = tk.Button(root, text="Affected Cities", fg="white", bg="gray", command=cities_)
-city_tk.place(x=10, y=70)
-label_city=Label(root,font=("calibri",10),borderwidth=3, relief="sunken")
-label_city.pack()
-###
 
 root.config(menu=menubar)
 root.mainloop()
