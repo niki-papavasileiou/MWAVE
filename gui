@@ -65,8 +65,8 @@ def display(user):
     global center_x,center_y, width,angle, height
     center_x = 21.53
     center_y = 39.6
-    width = 1
-    height = 1
+    width = 4
+    height = 5
     angle = 1
 
     center = [center_x,center_y]
@@ -120,8 +120,8 @@ def cities_():
     pd.options.mode.chained_assignment = None
     cities['city_info'] = cities['city'] + ', ' + cities['admin_name'] + ', ' + cities['country']
     affected_cities = cities['city_info'].to_string(index=False)
-    #city.config(text=str(affected_cities))
-    return str(affected_cities)
+    label_city.config(text =str(affected_cities))
+    
 
 def area():
 
@@ -172,8 +172,15 @@ display_.add_command(label='Precipitation', command = lambda:display('Prec'))
 
 area_tk = tk.Button(root, text="Info", fg="white", bg="gray", command=area)
 area_tk.place(x=10, y=20)
-label_area=Label(root,padx = 5, pady=21,font=("calibri",10),borderwidth=3, relief="sunken")
+label_area=Label(root,padx = 10, pady=20,font=("calibri",10),borderwidth=3, relief="sunken")
 label_area.pack()
+
+###
+city_tk = tk.Button(root, text="Affected Cities", fg="white", bg="gray", command=cities_)
+city_tk.place(x=10, y=70)
+label_city=Label(root,font=("calibri",10),borderwidth=3, relief="sunken")
+label_city.pack()
+###
 
 root.config(menu=menubar)
 root.mainloop()
