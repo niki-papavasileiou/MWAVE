@@ -47,7 +47,7 @@ def display(user):
     df = pd.read_csv("most_recent.txt",delim_whitespace=True)
     df['Prec'][df['Prec']<0] = 0
 
-    fig = plt.figure(figsize=(4,4))
+    fig = plt.figure(figsize=(6,6))
 
     ax=plt.axes(projection=ccrs.PlateCarree())
 
@@ -146,10 +146,8 @@ def area():
     w =c_w * r
     h =c_h * r
 
-    #print("\n\nInfo \n\n")
     Area = 3.142 * w/2 * h/2 
-    print("area:",Area, "km^2\n")
-    label_area.config(text=Area)
+    label_area.config(text="area: " +str(round(Area, 3)) + "  km^2")
 
 root = Tk()
 root.geometry('520x350')
@@ -172,9 +170,9 @@ menubar.add_cascade(label='Display', menu=display_)
 display_.add_command(label='AOD', command = lambda:display('AOD550nm'))
 display_.add_command(label='Precipitation', command = lambda:display('Prec'))
 
-area_tk = tk.Button(root, text="Area (km^2)", fg="white", bg="gray", command=area)
+area_tk = tk.Button(root, text="Info", fg="white", bg="gray", command=area)
 area_tk.place(x=10, y=20)
-label_area=Label(root,padx = 11, pady=21,font=("calibri",10),borderwidth=3, relief="sunken")
+label_area=Label(root,padx = 5, pady=21,font=("calibri",10),borderwidth=3, relief="sunken")
 label_area.pack()
 
 root.config(menu=menubar)
