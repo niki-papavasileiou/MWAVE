@@ -14,6 +14,19 @@ import sys
 import math  
 from math import radians, cos, sin, asin, sqrt
 
+def info():
+    
+    area()
+    date = "Date: " +str(max(data)) +"\n"
+
+    label_frame_area = LabelFrame(root, text='Info')
+    label_frame_area.pack(expand='yes', fill='both')
+    text_area = st.ScrolledText(root, width = 25, height = 8, font = ("calibri",10))
+    text_area.place(x=35,y=17)
+    text_area.insert(tk.INSERT,date )
+    text_area.insert(tk.INSERT, area_text)
+    text_area.configure(state ='disabled')
+
 def clear():
     
     text_area.place_forget()
@@ -24,7 +37,7 @@ def clear():
 
 def area():
  
-    global label_frame_area,text_area
+    global label_frame_area,text_area, Area, area_text
 
     lat1_w = radians(center_y)
     lat2_w = radians(center_y+width/2)
@@ -48,14 +61,17 @@ def area():
     h =c_h * r
 
     Area = 3.142 * w/2 * h/2 
-    area_text = "area: " +str(round(Area, 3)) + "  km^2"
+    area_text = "Area: " +str(round(Area, 3)) + "  km^2\n"
 
-    label_frame_area = LabelFrame(root, text='Info')
-    label_frame_area.pack(expand='yes', fill='both')
-    text_area = st.ScrolledText(root, width = 25, height = 8, font = ("calibri",10))
-    text_area.place(x=35,y=17)
-    text_area.insert(tk.INSERT, area_text)
-    text_area.configure(state ='disabled')
+    # date = "Date: " +str(max(data)) +"\n"
+
+    # label_frame_area = LabelFrame(root, text='Info')
+    # label_frame_area.pack(expand='yes', fill='both')
+    # text_area = st.ScrolledText(root, width = 25, height = 8, font = ("calibri",10))
+    # text_area.place(x=35,y=17)
+    # text_area.insert(tk.INSERT,date )
+    # text_area.insert(tk.INSERT, area_text)
+    # text_area.configure(state ='disabled')
 
 def about_window():
 
@@ -77,7 +93,7 @@ def about_window():
 
 def recent_file():
 
-    global index, real_data
+    global index, real_data, data
 
     data = []                                           
     real_data = []
@@ -105,6 +121,8 @@ def open_file():
     recent_file()
 
 def display(user):
+
+    global clear_button
 
     df = pd.read_csv("most_recent.txt",delim_whitespace=True)
     df['Prec'][df['Prec']<0] = 0
@@ -163,12 +181,13 @@ def display(user):
         print(ellipse_df.to_string())
         sys.stdout = og
 
-    area()
+    info()
     cities_()
-    global clear_button
+    
     clear_button = Button(root, text="clear", command=lambda: clear())
     clear_button.place(x=460,y=320)
 
+    plt.suptitle(max(data), fontsize=10)
     plt.show(block=False)
 
 def cities_():
