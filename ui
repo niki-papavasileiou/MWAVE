@@ -23,8 +23,7 @@ def clear():
     plt.close()
 
 def area():
-
-    
+ 
     global label_frame_area,text_area
 
     lat1_w = radians(center_y)
@@ -53,8 +52,8 @@ def area():
 
     label_frame_area = LabelFrame(root, text='Info')
     label_frame_area.pack(expand='yes', fill='both')
-    text_area = st.ScrolledText(root, width = 20, height = 5, font = ("calibri",10))
-    text_area.place(x=35,y=15)
+    text_area = st.ScrolledText(root, width = 25, height = 8, font = ("calibri",10))
+    text_area.place(x=35,y=17)
     text_area.insert(tk.INSERT, area_text)
     text_area.configure(state ='disabled')
 
@@ -193,7 +192,7 @@ def cities_():
     label_frame_city = LabelFrame(root, text='Affected Cities')
     label_frame_city.pack(expand='yes', fill='both')
     text_city = st.ScrolledText(root, width = 35, height = 8, font = ("calibri",10))
-    text_city.place(x=35,y=210)
+    text_city.place(x=35,y=200)
     text_city.insert(tk.INSERT, str(affected_cities))
     text_city.configure(state ='disabled')
 
