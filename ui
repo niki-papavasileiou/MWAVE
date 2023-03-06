@@ -12,18 +12,18 @@ import matplotlib.patches as patches
 import numpy as np
 import sys
 import math  
-from math import radians, cos, sin, asin, sqrt
+from math import radians, cos, sin, asin, sqrt 
 
 def info():
     
     area()
-    date = "Date: " +str(max(data)) +"\n"
+    date()
 
     label_frame_area = LabelFrame(root, text='Info')
     label_frame_area.pack(expand='yes', fill='both')
     text_area = st.ScrolledText(root, width = 25, height = 8, font = ("calibri",10))
     text_area.place(x=35,y=17)
-    text_area.insert(tk.INSERT,date )
+    text_area.insert(tk.INSERT, date_info)
     text_area.insert(tk.INSERT, area_text)
     text_area.configure(state ='disabled')
 
@@ -62,6 +62,18 @@ def area():
 
     Area = 3.142 * w/2 * h/2 
     area_text = "Area: " +str(round(Area, 3)) + "  km^2\n"
+
+def date():
+    
+    global date_info 
+
+    date = str(max(data))
+    year = date[0:len(date)-8]
+    month = date[4:len(date)-6]
+    day = date[6:len(date)-4]
+    hour = date[8:len(date)-2]
+    mins =date[10:len(date)-0]
+    date_info = "Date: " +day +"/" +month +"/" +year +" " +hour +":" +mins  +"\n"  
 
 def about_window():
 
@@ -125,6 +137,8 @@ def display(user):
     lats =df['LAT']
     z = df[user]
 
+    
+
     cs = ax.tricontourf(lons, lats, z,  locator=ticker.MaxNLocator(150),
                         origin='lower',
                         transform = ccrs.PlateCarree(),cmap='jet',extend='both')
@@ -140,10 +154,9 @@ def display(user):
     angle = 1
 
     center = [center_x,center_y]
-    e = patches.Ellipse(xy=center, width=width, height=height, angle = 180+angle,  edgecolor='r', facecolor='none')
-    ax.add_patch(e)
+    ellipse = patches.Ellipse(xy=center, width=width, height=height, angle = 180+angle,  edgecolor='r', facecolor='none')
+    ax.add_patch(ellipse)
     
-
     filter = df.filter(['LON','LAT'], axis=1)   
     xy = np.array(filter)  
 
