@@ -17,13 +17,16 @@ def info():
     
     global text_info,label_frame_info
 
+    category_info = "Category: " +category +"\n"
+    
     area()
     date()
-
+    
     label_frame_info = LabelFrame(root, text='Info')
     label_frame_info.pack(expand='yes', fill='both')
     text_info = st.ScrolledText(root, width = 25, height = 8, font = ("calibri",10))
     text_info.place(x=35,y=17)
+    text_info.insert(tk.INSERT, category_info)
     text_info.insert(tk.INSERT, date_info)
     text_info.insert(tk.INSERT, area_text)
     text_info.configure(state ='disabled')
@@ -51,12 +54,15 @@ def area():
 
     dlat_w = lat2_w - lat1_w
     dlng_w = lng2_w - lng1_w
-    a_w = sin(dlat_w / 2)**2 + cos(lat1_w) * cos(lat2_w) * sin(dlng_w / 2)**2
-    c_w = 2 * asin(sqrt(a_w)) 
     dlat_h = lat2_h - lat1_h
     dlng_h = lng2_h - lng1_h
+
+    a_w = sin(dlat_w / 2)**2 + cos(lat1_w) * cos(lat2_w) * sin(dlng_w / 2)**2
     a_h = sin(dlat_h / 2)**2 + cos(lat1_h) * cos(lat2_h) * sin(dlng_h / 2)**2
+
     c_h = 2 * asin(sqrt(a_h)) 
+    c_w = 2 * asin(sqrt(a_w)) 
+    
     r = 6371
     w =c_w * r
     h =c_h * r
@@ -125,12 +131,17 @@ def open_file():
 
 def display(user):
 
-    global clear_button
+    global clear_button, category
+
+    if user == 'AOD550nm':
+        category = 'AOD550nm'
+    elif user == 'Prec':
+        category = 'Precipitation'
 
     df = pd.read_csv("most_recent.txt",delim_whitespace=True)
     df['Prec'][df['Prec']<0] = 0
 
-    fig = plt.figure(figsize=(6,6))
+    fig = plt.figure(figsize=(7,7))
 
     ax=plt.axes(projection=ccrs.PlateCarree())
 
@@ -138,14 +149,12 @@ def display(user):
     lats =df['LAT']
     z = df[user]
 
-    
-
     cs = ax.tricontourf(lons, lats, z,  locator=ticker.MaxNLocator(150),
                         origin='lower',
                         transform = ccrs.PlateCarree(),cmap='jet',extend='both')
 
     ax.coastlines()
-    cbar = plt.colorbar(cs)
+    plt.colorbar(cs)
 
     global center_x,center_y, width,angle, height
     center_x = 21.53
