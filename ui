@@ -1,21 +1,22 @@
-from tkinter import Tk, Menu
-import tkinter as tk
-from tkinter import *
+from math import radians, cos, sin, asin, sqrt 
 from tkinter.filedialog import askdirectory
-import os
-import pandas as pd
+import matplotlib.patches as patches
 import matplotlib.ticker as ticker
 import tkinter.scrolledtext as st
-import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+import cartopy.crs as ccrs
+from tkinter import *
+import tkinter as tk
+import pandas as pd
 import numpy as np
-import sys
 import math  
-from math import radians, cos, sin, asin, sqrt 
+import sys
+import os
 
 def info():
     
+    global text_area,label_frame_area
+
     area()
     date()
 
@@ -37,7 +38,7 @@ def clear():
 
 def area():
  
-    global label_frame_area,text_area, Area, area_text
+    global  Area, area_text
 
     lat1_w = radians(center_y)
     lat2_w = radians(center_y+width/2)
