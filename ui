@@ -63,16 +63,6 @@ def area():
     Area = 3.142 * w/2 * h/2 
     area_text = "Area: " +str(round(Area, 3)) + "  km^2\n"
 
-    # date = "Date: " +str(max(data)) +"\n"
-
-    # label_frame_area = LabelFrame(root, text='Info')
-    # label_frame_area.pack(expand='yes', fill='both')
-    # text_area = st.ScrolledText(root, width = 25, height = 8, font = ("calibri",10))
-    # text_area.place(x=35,y=17)
-    # text_area.insert(tk.INSERT,date )
-    # text_area.insert(tk.INSERT, area_text)
-    # text_area.configure(state ='disabled')
-
 def about_window():
 
     about_win = Toplevel(root)
@@ -187,7 +177,6 @@ def display(user):
     clear_button = Button(root, text="clear", command=lambda: clear())
     clear_button.place(x=460,y=320)
 
-    plt.suptitle(max(data), fontsize=10)
     plt.show(block=False)
 
 def cities_():
