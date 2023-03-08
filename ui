@@ -9,6 +9,8 @@ from tkinter import *
 import tkinter as tk
 import pandas as pd
 import numpy as np
+import threading
+import datetime
 import math  
 import sys
 import os
@@ -17,13 +19,11 @@ def info():
     
     global text_info,label_frame_info
 
-    category_info = "Category: " +category +"\n"
-    
+    category_info = "Category: " + category +"\n"
+
     area()
     date()
     
-    label_frame_info = LabelFrame(root, text='Info')
-    label_frame_info.pack(expand='yes', fill='both')
     text_info = st.ScrolledText(root, width = 25, height = 8, font = ("calibri",10))
     text_info.place(x=35,y=17)
     text_info.insert(tk.INSERT, category_info)
@@ -34,9 +34,7 @@ def info():
 def clear():
     
     text_info.place_forget()
-    label_frame_info.pack_forget()
     text_city.place_forget()
-    label_frame_city.pack_forget()
     plt.close()
 
 def area():
@@ -135,13 +133,15 @@ def display(user):
 
     if user == 'AOD550nm':
         category = 'AOD550nm'
+        
     elif user == 'Prec':
         category = 'Precipitation'
+        
 
     df = pd.read_csv("most_recent.txt",delim_whitespace=True)
     df['Prec'][df['Prec']<0] = 0
 
-    fig = plt.figure(figsize=(7,7))
+    fig = plt.figure(figsize=(7,6))
 
     ax=plt.axes(projection=ccrs.PlateCarree())
 
@@ -194,13 +194,10 @@ def display(user):
         print(ellipse_df.to_string())
         sys.stdout = og
 
+    plt.show(block=False)
+
     info()
     cities_()
-    
-    clear_button = Button(root, text="clear", command=lambda: clear())
-    clear_button.place(x=460,y=320)
-
-    plt.show(block=False)
 
 def cities_():
 
@@ -220,12 +217,49 @@ def cities_():
     cities['city_info'] = cities['city'] + ', ' + cities['admin_name'] + ', ' + cities['country']
     affected_cities = cities['city_info'].to_string(index=False)
 
-    label_frame_city = LabelFrame(root, text='Affected Cities')
-    label_frame_city.pack(expand='yes', fill='both')
     text_city = st.ScrolledText(root, width = 35, height = 8, font = ("calibri",10))
     text_city.place(x=35,y=200)
     text_city.insert(tk.INSERT, str(affected_cities))
     text_city.configure(state ='disabled')
+
+def real_time():
+
+    if category == 'AOD550nm':
+        user = 'AOD550nm'       
+    elif category == 'Precipitation':
+        user = 'Prec'
+
+    N = len(fold_files)
+
+    # while True:
+
+    current_time = datetime.datetime.now()
+
+    if (current_time.second % 10 == 0):                     #19 min
+        fold_files_new =os.listdir(path)
+        N_new = len(fold_files_new)                       
+        if (N_new != N):
+            data = []                                           
+            real_data = []
+            for file in fold_files_new:
+                real_data.append(file)
+                data.append(int(file[7:len(file)-4]))               
+
+            i = 0
+            for file in fold_files_new:
+                    if max(data) == int(file[7:len(file)-4]):
+                        index = i
+                    i+=1
+
+            with open(f'{path}/{real_data[index]}', 'r') as f:                                    
+                    with open("most_recent.txt", "w") as f1:
+                        for line in f:
+                            f1.write(line)    
+                                                                                        
+            N = N_new
+
+            clear()
+            display(category)
 
 root = Tk()
 root.geometry('520x380')
@@ -251,6 +285,18 @@ display_.add_command(label='Precipitation', command = lambda:display('Prec'))
 help_ = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Help', menu=help_)
 help_.add_command(label='About...', command = about_window)
+
+label_frame_info = LabelFrame(root, text='Info')
+label_frame_info.pack(expand='yes', fill='both')
+
+label_frame_city = LabelFrame(root, text='Affected Cities')
+label_frame_city.pack(expand='yes', fill='both')
+
+clear_button = Button(root, text="clear", command=lambda: clear())
+clear_button.place(x=460,y=320)
+
+real_button = Button(root, text="real time", command=lambda: real_time())
+real_button.place(x=460,y=270)
 
 root.config(menu=menubar)
 root.mainloop()
