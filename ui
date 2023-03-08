@@ -9,7 +9,6 @@ from tkinter import *
 import tkinter as tk
 import pandas as pd
 import numpy as np
-import threading
 import datetime
 import math  
 import sys
@@ -72,7 +71,7 @@ def date():
     
     global date_info 
 
-    date = str(max(data))
+    date = str(max_data)
     year = date[0:len(date)-8]
     month = date[4:len(date)-6]
     day = date[6:len(date)-4]
@@ -100,7 +99,7 @@ def about_window():
 
 def recent_file():
 
-    global index, real_data, data
+    global index, real_data, data, max_data
 
     data = []                                           
     real_data = []
@@ -119,6 +118,7 @@ def recent_file():
         with open("most_recent.txt", "w") as f1:
             for line in f:
                 f1.write(line)
+    max_data = max(data)
     
 def open_file():
 
@@ -224,6 +224,8 @@ def cities_():
 
 def real_time():
 
+    global max_data
+
     if category == 'AOD550nm':
         user = 'AOD550nm'       
     elif category == 'Precipitation':
@@ -257,6 +259,7 @@ def real_time():
                             f1.write(line)    
                                                                                         
             N = N_new
+            max_data = max(data)
 
             clear()
             display(category)
