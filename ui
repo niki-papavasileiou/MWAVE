@@ -222,7 +222,7 @@ def cities_():
     text_city.insert(tk.INSERT, str(affected_cities))
     text_city.configure(state ='disabled')
 
-def real_time():
+def refresh():
 
     global max_data
 
@@ -262,7 +262,7 @@ def real_time():
             max_data = max(data)
 
             clear()
-            display(category)
+            display(user)
 
 root = Tk()
 root.geometry('520x380')
@@ -298,8 +298,8 @@ label_frame_city.pack(expand='yes', fill='both')
 clear_button = Button(root, text="clear", command=lambda: clear())
 clear_button.place(x=460,y=320)
 
-real_button = Button(root, text="real time", command=lambda: real_time())
-real_button.place(x=460,y=270)
+real_button = Button(root, text="refresh", command=lambda: refresh())
+real_button.place(x=455,y=280)
 
 root.config(menu=menubar)
 root.mainloop()
