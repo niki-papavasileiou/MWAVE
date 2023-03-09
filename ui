@@ -6,7 +6,9 @@ import tkinter.scrolledtext as st
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 from tkinter import *
+from ttkthemes import ThemedTk
 import tkinter as tk
+from tkinter import ttk
 import pandas as pd
 import numpy as np
 import math  
@@ -263,7 +265,7 @@ def refresh():
     else:
         root.after(15000, refresh)     
 
-root = Tk()
+root = ThemedTk(theme='xpnative')
 root.geometry('520x380')
 root.title('Meteosat Observer')
 root.resizable(0,0)
@@ -288,17 +290,17 @@ help_ = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Help', menu=help_)
 help_.add_command(label='About...', command = about_window)
 
-label_frame_info = LabelFrame(root, text='Info')
+label_frame_info = ttk.LabelFrame(root, text='Info')
 label_frame_info.pack(expand='yes', fill='both')
 
-label_frame_city = LabelFrame(root, text='Affected Cities')
+label_frame_city = ttk.LabelFrame(root, text='Affected Cities')
 label_frame_city.pack(expand='yes', fill='both')
 
-real_button = Button(root, text="refresh", command=lambda: refresh())
-real_button.place(x=455,y=280)
+real_button = ttk.Button(root, text="refresh", command=lambda: refresh())
+real_button.place(x=435,y=285)
 
-clear_button = Button(root, text="clear", command=lambda: clear())
-clear_button.place(x=460,y=320)
+clear_button = ttk.Button(root, text="clear", command=lambda: clear())
+clear_button.place(x=435,y=320)
 
 root.config(menu=menubar)
 root.mainloop()
