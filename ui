@@ -98,8 +98,9 @@ def about_window():
 
 def recent_file():
 
-    global index, real_data, data, max_data
+    global index, N,real_data, data, max_data
 
+    N = len(fold_files)
     data = []                                           
     real_data = []
     for file in fold_files:
@@ -117,6 +118,7 @@ def recent_file():
         with open("most_recent.txt", "w") as f1:
             for line in f:
                 f1.write(line)
+
     max_data = max(data)
     
 def open_file():
@@ -223,14 +225,13 @@ def cities_():
 
 def refresh():
 
-    global max_data, N, N_new
+    global max_data, N_new, N
 
     if category == 'AOD550nm':
         user = 'AOD550nm'       
     elif category == 'Precipitation':
         user = 'Prec'
 
-    N = len(fold_files)
     fold_files_new =os.listdir(path)
     N_new = len(fold_files_new)              
 
@@ -259,6 +260,8 @@ def refresh():
         clear()
         display(user)
         root.after(15000, refresh)
+    else:
+        root.after(15000, refresh)     
 
 root = Tk()
 root.geometry('520x380')
