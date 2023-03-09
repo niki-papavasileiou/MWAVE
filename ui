@@ -4,11 +4,11 @@ import matplotlib.patches as patches
 import matplotlib.ticker as ticker
 import tkinter.scrolledtext as st
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
-from tkinter import *
 from ttkthemes import ThemedTk
-import tkinter as tk
+import cartopy.crs as ccrs
 from tkinter import ttk
+from tkinter import *
+import tkinter as tk
 import pandas as pd
 import numpy as np
 import math  
@@ -229,41 +229,43 @@ def refresh():
 
     global max_data, N_new, N
 
-    if category == 'AOD550nm':
-        user = 'AOD550nm'       
-    elif category == 'Precipitation':
-        user = 'Prec'
+    if check.get():
 
-    fold_files_new =os.listdir(path)
-    N_new = len(fold_files_new)              
+        if category == 'AOD550nm':
+            user = 'AOD550nm'       
+        elif category == 'Precipitation':
+            user = 'Prec'
 
-    if (N_new != N):
+        fold_files_new =os.listdir(path)
+        N_new = len(fold_files_new)              
 
-        data = []                                           
-        real_data = []
-        for file in fold_files_new:
-            real_data.append(file)
-            data.append(int(file[7:len(file)-4]))               
+        if (N_new != N):
 
-        i = 0
-        for file in fold_files_new:
-            if max(data) == int(file[7:len(file)-4]):
-                index = i
-            i+=1
+            data = []                                           
+            real_data = []
+            for file in fold_files_new:
+                real_data.append(file)
+                data.append(int(file[7:len(file)-4]))               
 
-        with open(f'{path}/{real_data[index]}', 'r') as f:                                    
-            with open("most_recent.txt", "w") as f1:
-                for line in f:
-                    f1.write(line)    
+            i = 0
+            for file in fold_files_new:
+                if max(data) == int(file[7:len(file)-4]):
+                    index = i
+                i+=1
+
+            with open(f'{path}/{real_data[index]}', 'r') as f:                                    
+                with open("most_recent.txt", "w") as f1:
+                    for line in f:
+                        f1.write(line)    
                                                                                         
-        N = N_new
-        max_data = max(data)
+            N = N_new
+            max_data = max(data)
 
-        clear()
-        display(user)
-        root.after(15000, refresh)
-    else:
-        root.after(15000, refresh)     
+            clear()
+            display(user)
+            root.after(10000, refresh)
+        else:
+            root.after(10000, refresh)     
 
 root = ThemedTk(theme='xpnative')
 root.geometry('520x380')
@@ -296,11 +298,12 @@ label_frame_info.pack(expand='yes', fill='both')
 label_frame_city = ttk.LabelFrame(root, text='Affected Cities')
 label_frame_city.pack(expand='yes', fill='both')
 
-real_button = ttk.Button(root, text="refresh", command=lambda: refresh())
-real_button.place(x=435,y=285)
-
 clear_button = ttk.Button(root, text="clear", command=lambda: clear())
 clear_button.place(x=435,y=320)
+
+check = BooleanVar(root)
+checkbutton = ttk.Checkbutton(root, text='real-time', command=lambda: refresh(),variable = check)
+checkbutton.place(x=435,y=15)
 
 root.config(menu=menubar)
 root.mainloop()
