@@ -233,11 +233,6 @@ def refresh():
 
     N = len(fold_files)
 
-    # while True:
-
-    #current_time = datetime.datetime.now()
-
-    #if (current_time.second % 10 == 0):                     #19 min
     fold_files_new =os.listdir(path)
     N_new = len(fold_files_new)                       
     if (N_new != N):
@@ -300,7 +295,6 @@ real_button.place(x=455,y=280)
 
 clear_button = Button(root, text="clear", command=lambda: clear())
 clear_button.place(x=460,y=320)
-
 
 root.config(menu=menubar)
 root.mainloop()
