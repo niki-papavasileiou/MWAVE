@@ -223,7 +223,7 @@ def cities_():
 
 def refresh():
 
-    global max_data
+    global max_data, N, N_new
 
     if category == 'AOD550nm':
         user = 'AOD550nm'       
@@ -231,32 +231,34 @@ def refresh():
         user = 'Prec'
 
     N = len(fold_files)
-
     fold_files_new =os.listdir(path)
-    N_new = len(fold_files_new)                       
+    N_new = len(fold_files_new)              
+
     if (N_new != N):
-            data = []                                           
-            real_data = []
-            for file in fold_files_new:
-                real_data.append(file)
-                data.append(int(file[7:len(file)-4]))               
 
-            i = 0
-            for file in fold_files_new:
-                    if max(data) == int(file[7:len(file)-4]):
-                        index = i
-                    i+=1
+        data = []                                           
+        real_data = []
+        for file in fold_files_new:
+            real_data.append(file)
+            data.append(int(file[7:len(file)-4]))               
 
-            with open(f'{path}/{real_data[index]}', 'r') as f:                                    
-                    with open("most_recent.txt", "w") as f1:
-                        for line in f:
-                            f1.write(line)    
+        i = 0
+        for file in fold_files_new:
+            if max(data) == int(file[7:len(file)-4]):
+                index = i
+            i+=1
+
+        with open(f'{path}/{real_data[index]}', 'r') as f:                                    
+            with open("most_recent.txt", "w") as f1:
+                for line in f:
+                    f1.write(line)    
                                                                                         
-            N = N_new
-            max_data = max(data)
+        N = N_new
+        max_data = max(data)
 
-            clear()
-            display(user)
+        clear()
+        display(user)
+        root.after(15000, refresh)
 
 root = Tk()
 root.geometry('520x380')
