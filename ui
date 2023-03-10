@@ -24,7 +24,7 @@ def info():
     area()
     date()
     
-    text_info = st.ScrolledText(root, width = 25, height = 8, font = ("calibri",10))
+    text_info = st.ScrolledText(root, width = 35, height = 8, font = ("calibri",10))
     text_info.place(x=35,y=17)
     text_info.insert(tk.INSERT, category_info)
     text_info.insert(tk.INSERT, date_info)
@@ -90,7 +90,7 @@ def about_window():
     info_photo = tk.PhotoImage(file = 'info.png')
     about_win.wm_iconphoto(False, info_photo)
 
-    label_frame_about = LabelFrame(about_win, text='About...')
+    label_frame_about = ttk.LabelFrame(about_win, text='About...')
     label_frame_about.pack(expand='yes', fill='both')
     text_about = st.ScrolledText(about_win, width = 60, height = 36, font = ("calibri",10))
     text_about.place(x=35,y=15)
@@ -268,7 +268,7 @@ def refresh():
             root.after(10000, refresh)     
 
 root = ThemedTk(theme='xpnative')
-root.geometry('520x380')
+root.geometry('420x360')
 root.title('Meteosat Observer')
 root.resizable(0,0)
 
@@ -299,11 +299,11 @@ label_frame_city = ttk.LabelFrame(root, text='Affected Cities')
 label_frame_city.pack(expand='yes', fill='both')
 
 clear_button = ttk.Button(root, text="clear", command=lambda: clear())
-clear_button.place(x=435,y=320)
+clear_button.place(x=335,y=300)
 
 check = BooleanVar(root)
 checkbutton = ttk.Checkbutton(root, text='real-time', command=lambda: refresh(),variable = check)
-checkbutton.place(x=435,y=15)
+checkbutton.place(x=335,y=15)
 
 root.config(menu=menubar)
 root.mainloop()
