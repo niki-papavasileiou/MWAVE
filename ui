@@ -2,11 +2,11 @@ from math import radians, cos, sin, asin, sqrt
 from tkinter.filedialog import askdirectory
 import matplotlib.patches as patches
 import matplotlib.ticker as ticker
+import cartopy.feature as cfeature
 import tkinter.scrolledtext as st
 import matplotlib.pyplot as plt
 from ttkthemes import ThemedTk
 import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 from tkinter import ttk
 from tkinter import *
 import tkinter as tk
@@ -133,7 +133,7 @@ def open_file():
 
 def display(user):
 
-    global clear_button, category
+    global clear_button, category, ax, df
 
     if user == 'AOD550nm':
         category = 'AOD550nm'
@@ -161,17 +161,28 @@ def display(user):
     ax.add_feature(cfeature.BORDERS)
     plt.colorbar(cs)
 
-    global center_x,center_y, width,angle, height
-    center_x = 21.53
-    center_y = 39.6
-    width = 4
-    height = 5
-    angle = 1
+    ellipse_file()
+    plt.show(block=False)
+
+    info()
+    cities_()
+
+def ellipse_file():
+
+    global width,height, angle, center_x, center_y
+
+    df_ellipse_file = pd.read_csv("ellipse_test.txt", sep = ',')
+
+    width = df_ellipse_file['width'].iloc[-1]
+    height = df_ellipse_file['height'].iloc[-1]
+    angle = df_ellipse_file['angle'].iloc[-1]
+    center_x = df_ellipse_file['centre_x'].iloc[-1]
+    center_y = df_ellipse_file['centre_y'].iloc[-1]
 
     center = [center_x,center_y]
     ellipse = patches.Ellipse(xy=center, width=width, height=height, angle = 180+angle,  edgecolor='r', facecolor='none')
     ax.add_patch(ellipse)
-    
+
     filter = df.filter(['LON','LAT'], axis=1)   
     xy = np.array(filter)  
 
@@ -199,10 +210,7 @@ def display(user):
         print(ellipse_df.to_string())
         sys.stdout = og
 
-    plt.show(block=False)
-
-    info()
-    cities_()
+    #ellipse_file_len = df_ellipse_file.shape[0]
 
 def cities_():
 
@@ -265,9 +273,9 @@ def refresh():
 
             clear()
             display(user)
-            root.after(10000, refresh)
+            root.after(1000, refresh)
         else:
-            root.after(10000, refresh)     
+            root.after(1000, refresh)     
 
 root = ThemedTk(theme='xpnative')
 root.geometry('420x360')
