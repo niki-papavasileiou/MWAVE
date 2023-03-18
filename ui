@@ -6,6 +6,7 @@ import tkinter.scrolledtext as st
 import matplotlib.pyplot as plt
 from ttkthemes import ThemedTk
 import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 from tkinter import ttk
 from tkinter import *
 import tkinter as tk
@@ -157,6 +158,7 @@ def display(user):
                         transform = ccrs.PlateCarree(),cmap='jet',extend='both')
 
     ax.coastlines()
+    ax.add_feature(cfeature.BORDERS)
     plt.colorbar(cs)
 
     global center_x,center_y, width,angle, height
