@@ -25,7 +25,7 @@ def info():
     area()
     date()
     
-    text_info = st.ScrolledText(root, width = 35, height = 8, font = ("calibri",10))
+    text_info = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
     text_info.place(x=35,y=17)
     text_info.insert(tk.INSERT, category_info)
     text_info.insert(tk.INSERT, date_info)
@@ -107,7 +107,6 @@ def recent_file():
     data = []                                           
     real_data = []
     for file in fold_files:
-
         real_data.append(file)
         data.append(int(file[7:len(file)-4]))               
 
@@ -230,7 +229,7 @@ def cities_():
     cities['city_info'] = cities['city'] + ', ' + cities['admin_name'] + ', ' + cities['country']
     affected_cities = cities['city_info'].to_string(index=False)
 
-    text_city = st.ScrolledText(root, width = 35, height = 8, font = ("calibri",10))
+    text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
     text_city.place(x=35,y=200)
     text_city.insert(tk.INSERT, str(affected_cities))
     text_city.configure(state ='disabled')
@@ -273,9 +272,7 @@ def refresh():
 
             clear()
             display(user)
-            root.after(1000, refresh)
-        else:
-            root.after(1000, refresh)     
+        root.after(1000, refresh)   
 
 root = ThemedTk(theme='xpnative')
 root.geometry('420x360')
