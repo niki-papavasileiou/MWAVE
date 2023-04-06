@@ -20,7 +20,12 @@ def alert():
 
     global text_alert
 
-    if (ellipse_df[alert_var] > 2).any():
+    if alert_var == "Prec":
+        threshold = 20
+    else:
+        threshold = 5
+
+    if (ellipse_df[alert_var] > threshold).any():
         msg = "alert"
     else:
         msg = "no alert"
