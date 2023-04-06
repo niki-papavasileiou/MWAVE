@@ -16,6 +16,20 @@ import math
 import sys
 import os
 
+def alert():
+
+    global text_alert
+
+    if (ellipse_df[alert_var] > 2).any():
+        msg = "alert"
+    else:
+        msg = "no alert"
+
+    text_alert = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
+    text_alert.place(x=35,y=380)
+    text_alert.insert(tk.INSERT, msg)
+    text_alert.configure(state ='disabled')
+
 def info_ellipse():
     
     global text_info,label_frame_info
@@ -50,7 +64,8 @@ def clear():
     
     plt.close()
     text_info.place_forget()
-    text_city.place_forget()   
+    text_city.place_forget() 
+    text_alert.place_forget()  
 
 def area():
  
@@ -152,13 +167,14 @@ def open_file():
 
 def display_ellipse(user):
 
-    global clear_button, category, ax, df
+    global clear_button, category, ax, df, alert_var
 
     if user == 'AOD550nm':
         category = 'AOD550nm'
-        
+        alert_var = 'AOD550nm'
     elif user == 'Prec':
         category = 'Precipitation'
+        alert_var = 'Prec'
         
 
     df = pd.read_csv("most_recent.txt",delim_whitespace=True)
@@ -186,13 +202,13 @@ def display_ellipse(user):
 
     info_ellipse()
     cities_ellipse()
+    alert()
 
 def display(user):
     global clear_button, category, ax, df, count
 
     if user == 'AOD550nm':
         category = 'AOD550nm'
-        
     elif user == 'Prec':
         category = 'Precipitation'
         
@@ -332,7 +348,7 @@ def refresh():
         root.after(1000, refresh)   
 
 root = ThemedTk(theme='xpnative')
-root.geometry('420x360')
+root.geometry('420x560')
 root.title('Meteosat Observer')
 root.resizable(0,0)
 
@@ -371,8 +387,11 @@ label_frame_info.pack(expand='yes', fill='both')
 label_frame_city = ttk.LabelFrame(root, text='Affected Cities')
 label_frame_city.pack(expand='yes', fill='both')
 
+label_frame_alert = ttk.LabelFrame(root, text='ALERT')
+label_frame_alert.pack(expand='yes', fill='both')
+
 clear_button = ttk.Button(root, text="clear", command=lambda: clear())
-clear_button.place(x=335,y=300)
+clear_button.place(x=335,y=500)
 
 check = BooleanVar(root)
 checkbutton = ttk.Checkbutton(root, text='real-time', command=lambda: refresh(),variable = check)
