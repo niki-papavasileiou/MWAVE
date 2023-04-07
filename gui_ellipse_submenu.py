@@ -197,7 +197,7 @@ def display_ellipse(user):
     plt.colorbar(cs)
 
     ellipse_file()
-
+    plt.tight_layout()
     plt.show(block=False)
 
     info_ellipse()
@@ -208,6 +208,7 @@ def display(user):
     global clear_button, category, ax, df, count
     
     plt.close()
+      
     if user == 'AOD550nm':
         category = 'AOD550nm'
     elif user == 'Prec':
@@ -233,6 +234,14 @@ def display(user):
     ax.add_feature(cfeature.BORDERS)
     plt.colorbar(cs)
 
+    text_alert = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
+    text_alert.place(x=35,y=340)
+    text_alert.configure(state ='disabled')
+    text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
+    text_city.place(x=35,y=180)
+    text_city.configure(state ='disabled')
+
+    plt.tight_layout()
     plt.show(block=False)
     info()
 
