@@ -30,7 +30,7 @@ def alert():
     else:
         msg = "no alert"
 
-    text_alert = st.ScrolledText(root, width = 39, height = 3, font = ("calibri",10))
+    text_alert = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
     text_alert.place(x=35,y=340)
     text_alert.insert(tk.INSERT, msg)
     text_alert.configure(state ='disabled')
@@ -165,9 +165,9 @@ def open_file():
 
 def display_ellipse(user):
 
-    global clear_button, category, ax, df, alert_var
+    global  category, ax, df, alert_var, count
+    count = 2
 
-    
     plt.close()
     if user == 'AOD550nm':
         category = 'AOD550nm'
@@ -347,12 +347,11 @@ def refresh():
             max_data = max(data)
 
             if count == 1:
-                plt.close()
                 display(user)
                 count = 0
-            else:
-                
+            elif count ==2:   
                 display_ellipse(user)
+                count = 0
 
         root.after(1000, refresh)   
 
