@@ -31,7 +31,7 @@ def alert():
         msg = "no alert"
 
     text_alert = st.ScrolledText(root, width = 39, height = 3, font = ("calibri",10))
-    text_alert.place(x=35,y=380)
+    text_alert.place(x=35,y=340)
     text_alert.insert(tk.INSERT, msg)
     text_alert.configure(state ='disabled')
 
@@ -64,13 +64,6 @@ def info():
     text_info.insert(tk.INSERT, category_info)
     text_info.insert(tk.INSERT, date_info)
     text_info.configure(state ='disabled')
-
-def clear():
-    
-    plt.close()
-    text_info.place_forget()
-    text_city.place_forget() 
-    text_alert.place_forget()  
 
 def area():
  
@@ -174,6 +167,8 @@ def display_ellipse(user):
 
     global clear_button, category, ax, df, alert_var
 
+    
+    plt.close()
     if user == 'AOD550nm':
         category = 'AOD550nm'
         alert_var = 'AOD550nm'
@@ -211,7 +206,8 @@ def display_ellipse(user):
 
 def display(user):
     global clear_button, category, ax, df, count
-
+    
+    plt.close()
     if user == 'AOD550nm':
         category = 'AOD550nm'
     elif user == 'Prec':
@@ -343,11 +339,10 @@ def refresh():
 
             if count == 1:
                 plt.close()
-                text_info.place_forget()
                 display(user)
                 count = 0
             else:
-                clear()
+                
                 display_ellipse(user)
 
         root.after(1000, refresh)   
@@ -403,9 +398,6 @@ label_frame_alert.pack(expand='yes', fill='both')
 text_alert = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
 text_alert.place(x=35,y=340)
 text_alert.configure(state ='disabled')
-
-clear_button = ttk.Button(root, text="clear", command=lambda: clear())
-clear_button.place(x=335,y=440)
 
 check = BooleanVar(root)
 checkbutton = ttk.Checkbutton(root, text='real-time', command=lambda: refresh(),variable = check)
