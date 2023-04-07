@@ -30,7 +30,7 @@ def alert():
     else:
         msg = "no alert"
 
-    text_alert = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
+    text_alert = st.ScrolledText(root, width = 39, height = 3, font = ("calibri",10))
     text_alert.place(x=35,y=380)
     text_alert.insert(tk.INSERT, msg)
     text_alert.configure(state ='disabled')
@@ -301,7 +301,7 @@ def cities_ellipse():
     affected_cities = cities['city_info'].to_string(index=False)
 
     text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_city.place(x=35,y=200)
+    text_city.place(x=35,y=180)
     text_city.insert(tk.INSERT, str(affected_cities))
     text_city.configure(state ='disabled')
 
@@ -353,7 +353,7 @@ def refresh():
         root.after(1000, refresh)   
 
 root = ThemedTk(theme='xpnative')
-root.geometry('420x560')
+root.geometry('420x500')
 root.title('Meteosat Observer')
 root.resizable(0,0)
 
@@ -388,15 +388,24 @@ help_.add_command(label='About...', command = about_window)
 
 label_frame_info = ttk.LabelFrame(root, text='Info')
 label_frame_info.pack(expand='yes', fill='both')
+text_info = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
+text_info.place(x=35,y=17)
+text_info.configure(state ='disabled')
 
 label_frame_city = ttk.LabelFrame(root, text='Affected Cities')
 label_frame_city.pack(expand='yes', fill='both')
+text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
+text_city.place(x=35,y=180)
+text_city.configure(state ='disabled')
 
 label_frame_alert = ttk.LabelFrame(root, text='ALERT')
 label_frame_alert.pack(expand='yes', fill='both')
+text_alert = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
+text_alert.place(x=35,y=340)
+text_alert.configure(state ='disabled')
 
 clear_button = ttk.Button(root, text="clear", command=lambda: clear())
-clear_button.place(x=335,y=500)
+clear_button.place(x=335,y=440)
 
 check = BooleanVar(root)
 checkbutton = ttk.Checkbutton(root, text='real-time', command=lambda: refresh(),variable = check)
