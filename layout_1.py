@@ -464,7 +464,7 @@ def forecast(user2):
     info_forecast()
 
 root = ThemedTk(theme='xpnative')
-root.geometry('360x490')
+root.geometry('352x490')
 root.title('Meteosat Observer')
 root.resizable(0,0)
 
@@ -517,9 +517,9 @@ checkbutton = ttk.Checkbutton(root, text='real-time', command=lambda: refresh(),
 checkbutton.place(x=10,y=435)
 
 forecast_button_prec = ttk.Button(root, text="forecast prec.", command=lambda: forecast('Prec'))
-forecast_button_prec.place(x=270,y=435)
+forecast_button_prec.place(x=260,y=435)
 forecast_button_aod = ttk.Button(root, text="forecast AOD", command=lambda: forecast('AOD550nm'))
-forecast_button_aod.place(x=270,y=405)
+forecast_button_aod.place(x=260,y=405)
 
 root.config(menu=menubar)
 root.protocol("WM_DELETE_WINDOW", sys.exit)
