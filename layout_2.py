@@ -21,17 +21,17 @@ import os
 global counter
 counter = 0
 
-def info_forecast():
+def info_predict():
 
     global text_info,label_frame_info
 
     category_info = "Category: " + category +"\n"
-    forecast_str = 'Short- term Forecast'
+    prediction_str = 'Short- term Prediciton'
     
     text_info = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
     text_info.place(x=35,y=17)
     text_info.insert(tk.INSERT, category_info)
-    text_info.insert(tk.INSERT, forecast_str)
+    text_info.insert(tk.INSERT, prediction_str)
     text_info.configure(state ='disabled')
 
 def file_comb():
@@ -438,7 +438,7 @@ def refresh():
 
         root.after(1000, refresh)  
 
-def forecast(user2):
+def predict(user2):
 
     global category
 
@@ -474,7 +474,7 @@ def forecast(user2):
     plt.tight_layout()
     plt.show(block=False)
     
-    info_forecast()
+    info_predict()
 
 root = ThemedTk(theme='xpnative')
 root.geometry('1080x620')
@@ -531,10 +531,10 @@ newCanvas.place(x=358,y=5)
 
 checkbutton.lift(newCanvas)
 
-forecast_button_prec = ttk.Button(root, text="forecast prec.", command=lambda: forecast('Prec'))
-forecast_button_prec.place(x=260,y=560)
-forecast_button_aod = ttk.Button(root, text="forecast AOD", command=lambda: forecast('AOD550nm'))
-forecast_button_aod.place(x=260,y=530)
+predict_button_prec = ttk.Button(root, text="predict prec.", command=lambda: predict('Prec'))
+predict_button_prec.place(x=260,y=560)
+predict_button_aod = ttk.Button(root, text="predict AOD", command=lambda: predict('AOD550nm'))
+predict_button_aod.place(x=260,y=530)
 
 root.config(menu=menubar)
 root.protocol("WM_DELETE_WINDOW", sys.exit)
