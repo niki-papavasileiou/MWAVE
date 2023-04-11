@@ -17,20 +17,30 @@ import math
 import sys
 import os
 
+"""
+NEED:
+        Ellipse file
+_________________________
+IDEAS:
+        add historical data
+        add noaa, ecmwf data (wind speed, dir etc)[info]
+        diff. alarm?
+"""
+
 global counter
 counter = 0
 
-def info_forecast():
+def info_predict():
 
     global text_info,label_frame_info
 
     category_info = "Category: " + category +"\n"
-    forecast_str = 'Short- term Forecast'
+    prediction_str = 'Short- term prediction'
     
     text_info = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
     text_info.place(x=35,y=17)
     text_info.insert(tk.INSERT, category_info)
-    text_info.insert(tk.INSERT, forecast_str)
+    text_info.insert(tk.INSERT, prediction_str)
     text_info.configure(state ='disabled')
 
 def file_comb():
@@ -272,7 +282,8 @@ def display_ellipse(user):
     alert()
     
 def display(user):
-    global clear_button, category, ax, df, count
+
+    global  category, ax, df, count
     
     if counter == 3:
         label.destroy()
@@ -425,9 +436,10 @@ def refresh():
 
         root.after(1000, refresh)   
 
-def forecast(user2):
+def predict(user2):
 
     global category
+    import statsmodels.api as sm
 
     df_comb = file_comb()
     df_pred = df_comb[['LAT', 'LON', user2]].dropna()
@@ -461,7 +473,7 @@ def forecast(user2):
     plt.tight_layout()
     plt.show(block=False)
     
-    info_forecast()
+    info_predict()
 
 root = ThemedTk(theme='xpnative')
 root.geometry('352x490')
@@ -516,10 +528,10 @@ check = BooleanVar(root)
 checkbutton = ttk.Checkbutton(root, text='real-time', command=lambda: refresh(),variable = check)
 checkbutton.place(x=10,y=435)
 
-forecast_button_prec = ttk.Button(root, text="forecast prec.", command=lambda: forecast('Prec'))
-forecast_button_prec.place(x=260,y=435)
-forecast_button_aod = ttk.Button(root, text="forecast AOD", command=lambda: forecast('AOD550nm'))
-forecast_button_aod.place(x=260,y=405)
+predict_button_prec = ttk.Button(root, text="predict prec.", command=lambda: predict('Prec'))
+predict_button_prec.place(x=260,y=435)
+predict_button_aod = ttk.Button(root, text="predict AOD", command=lambda: predict('AOD550nm'))
+predict_button_aod.place(x=260,y=405)
 
 root.config(menu=menubar)
 root.protocol("WM_DELETE_WINDOW", sys.exit)
