@@ -528,7 +528,7 @@ check = BooleanVar(root)
 checkbutton = ttk.Checkbutton(root, text='real-time',variable = check, command=refresh)
 checkbutton.place(x=15,y=565)
 
-newCanvas = Canvas(root, width=700, height=570, bg='#d9d9d9')
+newCanvas = Canvas(root, width=700, height=580, bg='#d9d9d9')
 newCanvas.place(x=358,y=5)
 
 checkbutton.lift(newCanvas)
