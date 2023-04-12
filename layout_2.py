@@ -29,7 +29,7 @@ def info_predict():
     prediction_str = 'Short- term Prediciton'
     
     text_info = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_info.place(x=35,y=17)
+    text_info.grid(column=0, row=0, ipadx=10, ipady=10)
     text_info.insert(tk.INSERT, category_info)
     text_info.insert(tk.INSERT, prediction_str)
     text_info.configure(state ='disabled')
@@ -324,7 +324,6 @@ def display(user):
     canvas = FigureCanvasTkAgg(fig, master=root)  
     canvas.get_tk_widget().place(x=360,y=6)
     canvas.draw()
-    # plt.show(block=False)
     info()
     texts_display()
 
@@ -461,7 +460,7 @@ def predict(user2):
     model.fit(X, y)
     y_pred = model.predict(X)
 
-    fig = plt.figure(figsize=(6, 6))
+    fig = plt.figure(figsize=(7, 6))
     ax = plt.axes(projection=ccrs.PlateCarree())
     
     cs = ax.tricontourf(X[:, 1], X[:, 0], y_pred, vmin=vmin, vmax=vmax, locator=ticker.MaxNLocator(150),
@@ -472,8 +471,11 @@ def predict(user2):
     ax.add_feature(cfeature.BORDERS, linestyle=':')
     plt.colorbar(cs,shrink=0.5)
     plt.tight_layout()
-    plt.show(block=False)
     
+    canvas = FigureCanvasTkAgg(fig, master=root)  
+    canvas.get_tk_widget().place(x=360,y=6)
+    canvas.draw()
+    texts_display()
     info_predict()
 
 root = ThemedTk(theme='xpnative')
