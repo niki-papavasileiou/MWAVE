@@ -20,12 +20,36 @@ import os
 """
 NEED:
         Ellipse file
-_________________________
+_____________________________________________________________________________________________________
 IDEAS:
         add historical data
         add noaa, ecmwf data (wind speed, dir etc)[info]
         diff. alarm?
-"""
+_____________________________________________________________________________________________________
+PREDICTION:
+
+    PREC
+
+2h -15min   
+ ->     Decision Tree: MSE=3.1193501566041037e-06, MAE=8.912429018994775e-06, R2=0.9999881536817462     9 sec
+        Random Forest: MSE=5.106001884342233e-07, MAE=4.135367064878439e-06, R2=0.9999980608998577      42sec
+
+        Decision Tree - Average training score: 1.0
+        Decision Tree - Average test score: 0.999996039292984
+        Random Forest - Average training score: 0.999999378660782
+        Random Forest - Average test score: 0.9999977717846774
+
+    AOD550nm
+
+2h -15min 
+ ->     Decision Tree: MSE=0.05133421231952331, MAE=0.04634249191515367, R2=0.12140441966339355
+        Random Forest: MSE=0.030373784298989077, MAE=0.039873654859820216, R2=0.48014644742021395
+
+        Decision Tree - Average training score: 1.0
+        Decision Tree - Average test score: 0.0810006804529102
+        Random Forest - Average training score: 0.9260606348248327
+        Random Forest - Average test score: 0.4641215850731559
+""" 
 
 global counter
 counter = 0
@@ -47,11 +71,11 @@ def file_comb():
 
     global df_comb
 
-    new_index = [index, index-1, index-2, index-3, index-4, index-5,index-7, index-8]
+    new_index = [index+1, index-3, index-7, index-11] #, index-4, index-5,index-7, index-8,index-9,index-10]
     pd.options.mode.chained_assignment = None  
 
     files_to_combine = []
-    for i in range(index-8, index+1):
+    for i in range(index-6, index+1, 8):
         file_path = f"{path}/{real_data[i]}"
         with open(file_path, 'r') as f:
             contents = f.read()
@@ -60,9 +84,9 @@ def file_comb():
             lines = contents.split("\n")
             for j, line in enumerate(lines):
                 if line.strip():
-                    if i == index-8 and j == 0:  # add title to new column
+                    if i == index-6 and j == 0:  # add title to new column
                         files_to_combine.append(f"{line.strip()}  time\n")
-                    elif i != index-8 and j == 0:  # skip first line for other files
+                    elif i != index-6 and j == 0:  # skip first line for other files
                         continue
                     else:
                         files_to_combine.append(f"{line.strip()}  {time}\n")
@@ -86,6 +110,10 @@ def file_comb():
     'time':int
     })
 
+    df_comb['Prec'] = df_comb['Prec'].clip(lower=0)
+    df_comb['time'] = pd.to_datetime(df_comb['time'], format='%H%M').dt.time
+    df_comb = df_comb.set_index('time')
+    
     return df_comb
 
 def alert():
@@ -439,12 +467,10 @@ def refresh():
 def predict(user2):
 
     global category
-    import statsmodels.api as sm
 
     df_comb = file_comb()
-    df_pred = df_comb[['LAT', 'LON', user2]].dropna()
+    df_comb = df_comb[['LAT', 'LON', user2]].dropna()
     if user2=='Prec':
-        df_pred['Prec'][df_pred['Prec']<0] = 0
         vmin = 0
         vmax = 20
         category = 'Prec'
@@ -453,17 +479,22 @@ def predict(user2):
         vmax = 5
         category = 'AOD550nm'
 
-    X = df_pred[['LAT', 'LON']].values
-    y = df_pred[user2].values
+    X = df_comb[['LAT', 'LON']].values
+    y = df_comb[user2].values
+    
+    # from sklearn.ensemble import RandomForestRegressor
+    # rf = RandomForestRegressor(random_state=42, n_estimators=100)
+    # rf.fit(X, y)
+    # y_pred = rf.predict(X)
 
     model = DecisionTreeRegressor(random_state=42)
     model.fit(X, y)
     y_pred = model.predict(X)
-
+    
     fig = plt.figure(figsize=(6, 6))
     ax = plt.axes(projection=ccrs.PlateCarree())
     
-    cs = ax.tricontourf(X[:, 1], X[:, 0], y_pred, vmin=vmin, vmax=vmax, locator=ticker.MaxNLocator(150),
+    cs = ax.tricontourf(df_comb['LON'], df_comb['LAT'], y_pred, vmin=vmin, vmax=vmax, locator=ticker.MaxNLocator(250),
                         origin='lower',
                         transform = ccrs.PlateCarree(),cmap='jet',extend='both')
     
@@ -473,6 +504,9 @@ def predict(user2):
     plt.tight_layout()
     plt.show(block=False)
     
+    text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
+    text_city.place(x=35,y=180)
+    text_city.configure(state ='disabled')
     info_predict()
 
 root = ThemedTk(theme='xpnative')
