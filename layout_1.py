@@ -18,6 +18,8 @@ import numpy as np
 import math  
 import sys
 import os
+from PIL import Image, ImageTk, ImageSequence
+
 
 """
 NEED:
@@ -44,7 +46,7 @@ PREDICTION:
 1h - 15min 
         Decision Tree: MSE=3.8240309196316934e-07, MAE=1.318631352024541e-06, R2=0.9999978616679438
         Random Forest: MSE=1.3879367966356632e-08, MAE=3.8376719357693646e-07, R2=0.9999999223889711
-        
+
         Decision Tree - Average training score: 1.0
         Decision Tree - Average test score: 0.9999559783171431
         Random Forest - Average training score: 0.9999976056839156
@@ -526,9 +528,13 @@ def historical(user2):
     df_comb = df_comb[['LAT', 'LON', user2]] 
 
     if user2=='Prec':
+        vmin = 0 
+        vmax = 20
         category = 'Prec'
     else:
         category = 'AOD550nm'
+        vmin = 0
+        vmax = 5
 
     fig = plt.figure(figsize=(6, 6))
     ax = plt.axes(projection=ccrs.PlateCarree())
@@ -539,8 +545,11 @@ def historical(user2):
 
         data = df_comb.loc[df_comb.index == df_comb.index.unique()[i]]
 
-        cs = ax.tricontourf(data["LON"], data["LAT"], data[user2], cmap="jet", transform=ccrs.PlateCarree())
-        ax.set_title("Precipitation for {}".format(data.index[0]))
+        cs = ax.tricontourf(data["LON"], data["LAT"], data[category], vmin = vmin,vmax = vmax ,cmap="jet", transform=ccrs.PlateCarree())
+        if user2 == 'Prec':
+            ax.set_title("Precipitation for {}".format(data.index[0]))
+        else:
+            ax.set_title("AOD for {}".format(data.index[0]))
         
         ax.add_feature(cfeature.COASTLINE)
         ax.add_feature(cfeature.BORDERS, linestyle=':')   
@@ -548,14 +557,32 @@ def historical(user2):
 
     ani = animation.FuncAnimation(fig, animate, frames=len(df_comb.index.unique()), interval=500)
     ani.save("animated_plot.gif", writer="pillow")
+    display_gif()
 
-    from PIL import Image, ImageTk, ImageSequence
+def display_gif():
     gif = tk.Toplevel(root)
     gif.title("Historical Data")
-    image = tk.PhotoImage(file="animated_plot.gif")
+    pil_image = Image.open("animated_plot.gif")
+
+    frames = []
+    for frame in ImageSequence.Iterator(pil_image):
+        frame = frame.convert('RGBA')
+        # frame = frame.resize((500, 500), resample=Image.LANCZOS)
+        frames.append(frame)
+
+    image = ImageTk.PhotoImage(frames[0])
     label = tk.Label(gif, image=image)
     label.image = image
     label.grid(row=0, column=0)
+
+    def update_image(frame_number=0):
+        image = ImageTk.PhotoImage(frames[frame_number])
+        label.config(image=image)
+        label.image = image
+
+        root.after(250, update_image, (frame_number + 1) % len(frames))
+
+    root.after(0, update_image)
 
 root = ThemedTk(theme='xpnative')
 root.geometry('352x490')
