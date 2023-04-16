@@ -1,12 +1,14 @@
 from math import radians, cos, sin, asin, sqrt 
 from sklearn.tree import DecisionTreeRegressor
 from tkinter.filedialog import askdirectory
+import matplotlib.animation as animation
 import matplotlib.patches as patches
 import matplotlib.ticker as ticker
 import cartopy.feature as cfeature
 import tkinter.scrolledtext as st
 import matplotlib.pyplot as plt
 from ttkthemes import ThemedTk
+from PIL import Image, ImageTk
 import cartopy.crs as ccrs
 from tkinter import ttk
 from tkinter import *
@@ -28,7 +30,7 @@ IDEAS:
 _____________________________________________________________________________________________________
 PREDICTION:
 
-    PREC
+    -PREC-
 
 2h -15min   
  ->     Decision Tree: MSE=3.1193501566041037e-06, MAE=8.912429018994775e-06, R2=0.9999881536817462     9 sec
@@ -39,7 +41,11 @@ PREDICTION:
         Random Forest - Average training score: 0.999999378660782
         Random Forest - Average test score: 0.9999977717846774
 
-    AOD550nm
+1h - 15min 
+        Decision Tree: MSE=3.8240309196316934e-07, MAE=1.318631352024541e-06, R2=0.9999978616679438
+        Random Forest: MSE=1.3879367966356632e-08, MAE=3.8376719357693646e-07, R2=0.9999999223889711
+
+    -AOD550nm-
 
 2h -15min 
         Decision Tree: MSE=0.05133421231952331, MAE=0.04634249191515367, R2=0.12140441966339355
@@ -71,11 +77,11 @@ def file_comb():
 
     global df_comb
 
-    new_index = [index+1, index-3, index-7, index-11] #, index-4, index-5,index-7, index-8,index-9,index-10]
+    # new_index = [index+1, index-3, index-7, index-11] #, index-4, index-5,index-7, index-8,index-9,index-10]
     pd.options.mode.chained_assignment = None  
 
     files_to_combine = []
-    for i in range(index-6, index+1, 8):
+    for i in range(index-3, index+1):
         file_path = f"{path}/{real_data[i]}"
         with open(file_path, 'r') as f:
             contents = f.read()
@@ -84,9 +90,9 @@ def file_comb():
             lines = contents.split("\n")
             for j, line in enumerate(lines):
                 if line.strip():
-                    if i == index-6 and j == 0:  # add title to new column
+                    if i == index-3 and j == 0:  # add title to new column
                         files_to_combine.append(f"{line.strip()}  time\n")
-                    elif i != index-6 and j == 0:  # skip first line for other files
+                    elif i != index-3 and j == 0:  # skip first line for other files
                         continue
                     else:
                         files_to_combine.append(f"{line.strip()}  {time}\n")
@@ -509,6 +515,43 @@ def predict(user2):
     text_city.configure(state ='disabled')
     info_predict()
 
+def historical(user2):
+
+    df_comb = file_comb()
+    df_comb = df_comb[['LAT', 'LON', user2]] 
+
+    if user2=='Prec':
+        category = 'Prec'
+    else:
+        category = 'AOD550nm'
+
+    fig = plt.figure(figsize=(6, 6))
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    cax = fig.add_axes([0.92, 0.2, 0.02, 0.6]) # [left, bottom, width, height]
+
+    def animate(i):
+        ax.clear()
+
+        data = df_comb.loc[df_comb.index == df_comb.index.unique()[i]]
+
+        cs = ax.tricontourf(data["LON"], data["LAT"], data[user2], cmap="jet", transform=ccrs.PlateCarree())
+        ax.set_title("Precipitation for {}".format(data.index[0]))
+        
+        ax.add_feature(cfeature.COASTLINE)
+        ax.add_feature(cfeature.BORDERS, linestyle=':')   
+        cb = fig.colorbar(cs, cax=cax, ticks=np.linspace(0, 20, 11))
+
+    ani = animation.FuncAnimation(fig, animate, frames=len(df_comb.index.unique()), interval=500)
+    ani.save("animated_plot.gif", writer="pillow")
+
+    from PIL import Image, ImageTk, ImageSequence
+    gif = tk.Toplevel(root)
+    gif.title("Historical Data")
+    image = tk.PhotoImage(file="animated_plot.gif")
+    label = tk.Label(gif, image=image)
+    label.image = image
+    label.grid(row=0, column=0)
+
 root = ThemedTk(theme='xpnative')
 root.geometry('352x490')
 root.title('Meteosat Observer')
@@ -566,6 +609,11 @@ predict_button_prec = ttk.Button(root, text="predict prec.", command=lambda: pre
 predict_button_prec.place(x=260,y=435)
 predict_button_aod = ttk.Button(root, text="predict AOD", command=lambda: predict('AOD550nm'))
 predict_button_aod.place(x=260,y=405)
+
+hist_button_prec = ttk.Button(root, text="prec. 1h ago", command=lambda: historical('Prec'))
+hist_button_prec.place(x=175,y=435)
+hist_button_aod = ttk.Button(root, text="AOD 1h ago", command=lambda: historical('AOD550nm'))
+hist_button_aod.place(x=175,y=405)
 
 root.config(menu=menubar)
 root.protocol("WM_DELETE_WINDOW", sys.exit)
