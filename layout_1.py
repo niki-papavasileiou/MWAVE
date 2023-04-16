@@ -44,6 +44,11 @@ PREDICTION:
 1h - 15min 
         Decision Tree: MSE=3.8240309196316934e-07, MAE=1.318631352024541e-06, R2=0.9999978616679438
         Random Forest: MSE=1.3879367966356632e-08, MAE=3.8376719357693646e-07, R2=0.9999999223889711
+        
+        Decision Tree - Average training score: 1.0
+        Decision Tree - Average test score: 0.9999559783171431
+        Random Forest - Average training score: 0.9999976056839156
+        Random Forest - Average test score: 0.9999402294939896
 
     -AOD550nm-
 
