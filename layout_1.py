@@ -1,5 +1,6 @@
 from math import radians, cos, sin, asin, sqrt 
 from sklearn.tree import DecisionTreeRegressor
+from PIL import Image, ImageTk, ImageSequence
 from tkinter.filedialog import askdirectory
 import matplotlib.animation as animation
 import matplotlib.patches as patches
@@ -560,6 +561,7 @@ def historical(user2):
     display_gif()
 
 def display_gif():
+
     gif = tk.Toplevel(root)
     gif.title("Historical Data")
     pil_image = Image.open("animated_plot.gif")
@@ -567,7 +569,6 @@ def display_gif():
     frames = []
     for frame in ImageSequence.Iterator(pil_image):
         frame = frame.convert('RGBA')
-        # frame = frame.resize((500, 500), resample=Image.LANCZOS)
         frames.append(frame)
 
     image = ImageTk.PhotoImage(frames[0])
@@ -576,11 +577,12 @@ def display_gif():
     label.grid(row=0, column=0)
 
     def update_image(frame_number=0):
-        image = ImageTk.PhotoImage(frames[frame_number])
-        label.config(image=image)
-        label.image = image
+        if label.winfo_exists():
+            image = ImageTk.PhotoImage(frames[frame_number])
+            label.config(image=image)
+            label.image = image
 
-        root.after(250, update_image, (frame_number + 1) % len(frames))
+            root.after(250, update_image, (frame_number + 1) % len(frames))
 
     root.after(0, update_image)
 
