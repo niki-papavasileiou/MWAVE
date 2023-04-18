@@ -26,7 +26,6 @@ NEED:
         Ellipse file
 _____________________________________________________________________________________________________
 IDEAS:
-        add historical data
         add noaa, ecmwf data (wind speed, dir etc)[info]
         diff. alarm?
 _____________________________________________________________________________________________________
@@ -72,7 +71,7 @@ def info_predict():
     global text_info,label_frame_info
 
     category_info = "Category: " + category +"\n"
-    prediction_str = 'Short- term prediction'
+    prediction_str = 'Short-term prediction'
     
     text_info = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
     text_info.place(x=35,y=17)
@@ -84,7 +83,6 @@ def file_comb(n_files):
 
     global df_comb
 
-    # new_index = [index+1, index-3, index-7, index-11] #, index-4, index-5,index-7, index-8,index-9,index-10]
     pd.options.mode.chained_assignment = None  
 
     files_to_combine = []
@@ -326,6 +324,7 @@ def display(user):
 
     global  category, ax, df, count
     
+    count = 1
     if counter == 3:
         label.destroy()
     plt.close()
@@ -339,7 +338,6 @@ def display(user):
         vmin = 0
         vmax =20
         
-    count = 1
     df = pd.read_csv("most_recent.txt",delim_whitespace=True)
     df['Prec'][df['Prec']<0] = 0
 
@@ -470,12 +468,10 @@ def refresh():
 
             if count == 1:
                 display(user)
-                count = 0
             elif count ==2:   
                 display_ellipse(user)
-                count = 0
 
-        root.after(1000, refresh)   
+    root.after(1000, refresh)   
 
 def predict(user2):
 
