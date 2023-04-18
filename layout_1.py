@@ -1,6 +1,5 @@
 from math import radians, cos, sin, asin, sqrt 
 from sklearn.tree import DecisionTreeRegressor
-from PIL import Image, ImageTk, ImageSequence
 from tkinter.filedialog import askdirectory
 import matplotlib.animation as animation
 import matplotlib.patches as patches
@@ -9,7 +8,6 @@ import cartopy.feature as cfeature
 import tkinter.scrolledtext as st
 import matplotlib.pyplot as plt
 from ttkthemes import ThemedTk
-from PIL import Image, ImageTk
 import cartopy.crs as ccrs
 from tkinter import ttk
 from tkinter import *
@@ -19,11 +17,11 @@ import numpy as np
 import math  
 import sys
 import os
-from PIL import Image, ImageTk, ImageSequence
 
 """
 NEED:
         Ellipse file
+        precipitation threshold
 _____________________________________________________________________________________________________
 IDEAS:
         add noaa, ecmwf data (wind speed, dir etc)[info]
@@ -68,7 +66,7 @@ counter = 0
 
 def info_predict():
 
-    global text_info,label_frame_info
+    global text_info, label_frame_info
 
     category_info = "Category: " + category +"\n"
     prediction_str = 'Short-term prediction'
@@ -129,7 +127,7 @@ def file_comb(n_files):
 
 def alert():
 
-    global label,counter
+    global label, counter
 
     if alert_var == "Prec":
         threshold = 20
@@ -148,7 +146,7 @@ def alert():
 
 def info_ellipse():
     
-    global text_info,label_frame_info
+    global text_info, label_frame_info
 
     category_info = "Category: " + category +"\n"
 
@@ -164,7 +162,7 @@ def info_ellipse():
 
 def info():
     
-    global text_info,label_frame_info
+    global text_info, label_frame_info
 
     category_info = "Category: " + category +"\n"
 
@@ -245,7 +243,7 @@ def about_window():
 
 def recent_file():
 
-    global index, N,real_data, data, max_data
+    global index, N, real_data, data, max_data
 
     N = len(fold_files)
     data = []                                           
@@ -291,7 +289,7 @@ def display_ellipse(user):
         category = 'Precipitation'
         alert_var = 'Prec'
         vmin = 0
-        vmax = 20
+        vmax = 30
         
     df = pd.read_csv("most_recent.txt",delim_whitespace=True)
     df['Prec'][df['Prec']<0] = 0
@@ -367,7 +365,7 @@ def display(user):
 
 def ellipse_file():
 
-    global width,height, angle, center_x, center_y, og, ellipse_df,ellipse_points
+    global width, height, angle, center_x, center_y, og, ellipse_df, ellipse_points
 
     df_ellipse_file = pd.read_csv("ellipse_test.txt", sep = ',')
 
@@ -409,7 +407,7 @@ def ellipse_file():
 
 def cities_ellipse():
 
-    global affected_cities,text_city, label_frame_city, cities
+    global affected_cities, text_city, label_frame_city, cities
 
     cities_df = pd.read_csv("cities.csv", sep = ',')
 
@@ -432,7 +430,7 @@ def cities_ellipse():
 
 def refresh():
 
-    global max_data, N_new, N, count,real_data, index
+    global max_data, N_new, N, count, real_data, index
 
     if check.get():
 
@@ -556,6 +554,8 @@ def historical(user2):
     display_gif()
 
 def display_gif():
+
+    from PIL import Image, ImageTk, ImageSequence
 
     gif = tk.Toplevel(root)
     gif.title("Historical Data")
