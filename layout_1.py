@@ -21,12 +21,12 @@ import sys
 import os
 from PIL import Image, ImageTk, ImageSequence
 
-
 """
 NEED:
         Ellipse file
 _____________________________________________________________________________________________________
 IDEAS:
+        add historical data
         add noaa, ecmwf data (wind speed, dir etc)[info]
         diff. alarm?
 _____________________________________________________________________________________________________
@@ -80,7 +80,7 @@ def info_predict():
     text_info.insert(tk.INSERT, prediction_str)
     text_info.configure(state ='disabled')
 
-def file_comb():
+def file_comb(n_files):
 
     global df_comb
 
@@ -88,7 +88,7 @@ def file_comb():
     pd.options.mode.chained_assignment = None  
 
     files_to_combine = []
-    for i in range(index-3, index+1):
+    for i in range(index-n_files, index+1):
         file_path = f"{path}/{real_data[i]}"
         with open(file_path, 'r') as f:
             contents = f.read()
@@ -97,9 +97,9 @@ def file_comb():
             lines = contents.split("\n")
             for j, line in enumerate(lines):
                 if line.strip():
-                    if i == index-3 and j == 0:  # add title to new column
+                    if i == index-n_files and j == 0:  # add title to new column
                         files_to_combine.append(f"{line.strip()}  time\n")
-                    elif i != index-3 and j == 0:  # skip first line for other files
+                    elif i != index-n_files and j == 0:  # skip first line for other files
                         continue
                     else:
                         files_to_combine.append(f"{line.strip()}  {time}\n")
@@ -360,7 +360,7 @@ def display(user):
     plt.colorbar(cs,shrink=0.5)
 
     text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_city.place(x=35,y=180)
+    text_city.place(x=35,y=175)
     text_city.configure(state ='disabled')
 
     plt.tight_layout()
@@ -428,7 +428,7 @@ def cities_ellipse():
     affected_cities = cities['city_info'].to_string(index=False)
 
     text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_city.place(x=35,y=180)
+    text_city.place(x=35,y=175)
     text_city.insert(tk.INSERT, str(affected_cities))
     text_city.configure(state ='disabled')
 
@@ -481,12 +481,12 @@ def predict(user2):
 
     global category
 
-    df_comb = file_comb()
+    df_comb = file_comb(3)
     df_comb = df_comb[['LAT', 'LON', user2]].dropna()
     if user2=='Prec':
         vmin = 0
         vmax = 20
-        category = 'Prec'
+        category = 'Precipitation'
     else:
         vmin = 0
         vmax = 5
@@ -518,13 +518,13 @@ def predict(user2):
     plt.show(block=False)
     
     text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_city.place(x=35,y=180)
+    text_city.place(x=35,y=175)
     text_city.configure(state ='disabled')
     info_predict()
 
 def historical(user2):
 
-    df_comb = file_comb()
+    df_comb = file_comb(8)
     df_comb = df_comb[['LAT', 'LON', user2]] 
 
     if user2=='Prec':
@@ -581,7 +581,7 @@ def display_gif():
             label.config(image=image)
             label.image = image
 
-            root.after(250, update_image, (frame_number + 1) % len(frames))
+            root.after(350, update_image, (frame_number + 1) % len(frames))
 
     root.after(0, update_image)
 
@@ -628,7 +628,7 @@ text_info.configure(state ='disabled')
 label_frame_city = ttk.LabelFrame(root, text='Affected Cities')
 label_frame_city.pack(expand='yes', fill='both')
 text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-text_city.place(x=35,y=180)
+text_city.place(x=35,y=175)
 text_city.configure(state ='disabled')
 
 label_frame_alert = ttk.LabelFrame(root, text='')
@@ -643,9 +643,9 @@ predict_button_prec.place(x=260,y=435)
 predict_button_aod = ttk.Button(root, text="predict AOD", command=lambda: predict('AOD550nm'))
 predict_button_aod.place(x=260,y=405)
 
-hist_button_prec = ttk.Button(root, text="prec. 1h ago", command=lambda: historical('Prec'))
+hist_button_prec = ttk.Button(root, text="prec. 2h ago", command=lambda: historical('Prec'))
 hist_button_prec.place(x=175,y=435)
-hist_button_aod = ttk.Button(root, text="AOD 1h ago", command=lambda: historical('AOD550nm'))
+hist_button_aod = ttk.Button(root, text="AOD 2h ago", command=lambda: historical('AOD550nm'))
 hist_button_aod.place(x=175,y=405)
 
 root.config(menu=menubar)
