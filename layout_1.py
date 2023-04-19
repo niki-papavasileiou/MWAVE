@@ -8,6 +8,7 @@ import cartopy.feature as cfeature
 import tkinter.scrolledtext as st
 import matplotlib.pyplot as plt
 from ttkthemes import ThemedTk
+from sklearn.svm import SVR
 import cartopy.crs as ccrs
 from tkinter import ttk
 from tkinter import *
@@ -32,7 +33,7 @@ PREDICTION:
     -PREC-
 
 2h -15min   
- ->     Decision Tree: MSE=3.1193501566041037e-06, MAE=8.912429018994775e-06, R2=0.9999881536817462     9 sec
+        Decision Tree: MSE=3.1193501566041037e-06, MAE=8.912429018994775e-06, R2=0.9999881536817462     9 sec
         Random Forest: MSE=5.106001884342233e-07, MAE=4.135367064878439e-06, R2=0.9999980608998577      42sec
 
         Decision Tree - Average training score: 1.0
@@ -41,24 +42,30 @@ PREDICTION:
         Random Forest - Average test score: 0.9999977717846774
 
 1h - 15min 
-        Decision Tree: MSE=3.8240309196316934e-07, MAE=1.318631352024541e-06, R2=0.9999978616679438
-        Random Forest: MSE=1.3879367966356632e-08, MAE=3.8376719357693646e-07, R2=0.9999999223889711
+        Decision Tree: MSE=3.8240309196316934e-07, MAE=1.318631352024541e-06, R2=0.9999978616679438         9sec  para poli pithano overfitting
+        Random Forest: MSE=1.3879367966356632e-08, MAE=3.8376719357693646e-07, R2=0.9999999223889711        45 sec
+ ->     SVM - MSE: 0.0098, MAE: 0.0987, R2 Score: 0.9453                                                    12sec Sigura oxi overfitting
 
         Decision Tree - Average training score: 1.0
         Decision Tree - Average test score: 0.9999559783171431
         Random Forest - Average training score: 0.9999976056839156
         Random Forest - Average test score: 0.9999402294939896
+        SVM - Average training score: 0.9443328766326419
+        SVM - Average test score: 0.9449091031719673
 
     -AOD550nm-
 
 2h -15min 
         Decision Tree: MSE=0.05133421231952331, MAE=0.04634249191515367, R2=0.12140441966339355
         Random Forest: MSE=0.030373784298989077, MAE=0.039873654859820216, R2=0.48014644742021395
+        SVM - MSE: 0.0096, MAE: 0.0972, R2 Score: 0.8600
 
         Decision Tree - Average training score: 1.0
         Decision Tree - Average test score: 0.0810006804529102
         Random Forest - Average training score: 0.9260606348248327
         Random Forest - Average test score: 0.4641215850731559
+        SVM - Average training score: 0.8593825642352347
+        SVM - Average test score: 0.8599873602796984
 """ 
 
 global counter
@@ -476,7 +483,6 @@ def predict(user2):
     global category
 
     df_comb = file_comb(3)
-    df_comb = df_comb[['LAT', 'LON', user2]].dropna()
     if user2=='Prec':
         vmin = 0
         vmax = 20
@@ -485,18 +491,24 @@ def predict(user2):
         vmin = 0
         vmax = 5
         category = 'AOD550nm'
-
-    X = df_comb[['LAT', 'LON']].values
-    y = df_comb[user2].values
+    
+    df = df_comb.dropna()
+    df = df[['LAT', 'LON', user2]]
+    X = df[['LAT', 'LON', user2]].values
+    y = df[user2].values
     
     # from sklearn.ensemble import RandomForestRegressor
     # rf = RandomForestRegressor(random_state=42, n_estimators=100)
     # rf.fit(X, y)
     # y_pred = rf.predict(X)
 
-    model = DecisionTreeRegressor(random_state=42)
-    model.fit(X, y)
-    y_pred = model.predict(X)
+    # model = DecisionTreeRegressor(random_state=42)
+    # model.fit(X, y)
+    # y_pred = model.predict(X)
+
+    svm = SVR(kernel='linear')
+    svm.fit(X, y)
+    y_pred = svm.predict(X)
     
     fig = plt.figure(figsize=(6, 6))
     ax = plt.axes(projection=ccrs.PlateCarree())
