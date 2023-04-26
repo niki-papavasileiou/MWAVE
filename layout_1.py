@@ -22,7 +22,8 @@ import os
 """
 NEED:
         Ellipse file
-        precipitation threshold
+        color bar precipitation threshold
+        alert threshold
 _____________________________________________________________________________________________________
 IDEAS:
         add noaa, ecmwf data (wind speed, dir etc)[info]
@@ -32,18 +33,9 @@ PREDICTION:
 
     -PREC-
 
-2h -15min   
-        Decision Tree: MSE=3.1193501566041037e-06, MAE=8.912429018994775e-06, R2=0.9999881536817462     9 sec
-        Random Forest: MSE=5.106001884342233e-07, MAE=4.135367064878439e-06, R2=0.9999980608998577      42sec
-
-        Decision Tree - Average training score: 1.0
-        Decision Tree - Average test score: 0.999996039292984
-        Random Forest - Average training score: 0.999999378660782
-        Random Forest - Average test score: 0.9999977717846774
-
 1h - 15min 
         Decision Tree: MSE=3.8240309196316934e-07, MAE=1.318631352024541e-06, R2=0.9999978616679438         9sec  para poli pithano overfitting
-        Random Forest: MSE=1.3879367966356632e-08, MAE=3.8376719357693646e-07, R2=0.9999999223889711        45 sec
+        Random Forest: MSE=1.3879367966356632e-08, MAE=3.8376719357693646e-07, R2 = 0.9999999223889711      +++++++ sec
  ->     SVM - MSE: 0.0098, MAE: 0.0987, R2 Score: 0.9453                                                    12sec Sigura oxi overfitting
 
         Decision Tree - Average training score: 1.0
@@ -55,7 +47,7 @@ PREDICTION:
 
     -AOD550nm-
 
-2h -15min 
+1h -15min 
         Decision Tree: MSE=0.05133421231952331, MAE=0.04634249191515367, R2=0.12140441966339355
         Random Forest: MSE=0.030373784298989077, MAE=0.039873654859820216, R2=0.48014644742021395
         SVM - MSE: 0.0096, MAE: 0.0972, R2 Score: 0.8600
@@ -147,7 +139,7 @@ def alert():
         label = tk.Label(root, text = """\t------ALERT------
                         aod 5 mics fks qxf dekxwhxejwha
                     """,font=('calibri', 11,'bold'))
-        label.place(x=5,y=346)
+        label.place(x=5,y=340)
         
     counter = 3
 
@@ -243,7 +235,7 @@ def about_window():
     text_about = st.ScrolledText(about_win, width = 60, height = 36, font = ("calibri",10))
     text_about.place(x=35,y=15)
 
-    about_text = "ptixiaki"
+    about_text = "thesis"
 
     text_about.insert(tk.INSERT, about_text)
     text_about.configure(state ='disabled')
@@ -296,7 +288,7 @@ def display_ellipse(user):
         category = 'Precipitation'
         alert_var = 'Prec'
         vmin = 0
-        vmax = 30
+        vmax = 20
         
     df = pd.read_csv("most_recent.txt",delim_whitespace=True)
     df['Prec'][df['Prec']<0] = 0
@@ -482,6 +474,7 @@ def predict(user2):
 
     global category
 
+    plt.close()
     df_comb = file_comb(3)
     if user2=='Prec':
         vmin = 0
@@ -513,7 +506,7 @@ def predict(user2):
     fig = plt.figure(figsize=(6, 6))
     ax = plt.axes(projection=ccrs.PlateCarree())
     
-    cs = ax.tricontourf(df_comb['LON'], df_comb['LAT'], y_pred, vmin=vmin, vmax=vmax, locator=ticker.MaxNLocator(250),
+    cs = ax.tricontourf(df_comb['LON'], df_comb['LAT'], y_pred, vmin=vmin, vmax=vmax, locator=ticker.MaxNLocator(150),
                         origin='lower',
                         transform = ccrs.PlateCarree(),cmap='jet',extend='both')
     
@@ -544,8 +537,8 @@ def historical(user2):
 
     fig = plt.figure(figsize=(6, 6))
     ax = plt.axes(projection=ccrs.PlateCarree())
-    cax = fig.add_axes([0.92, 0.2, 0.02, 0.6]) # [left, bottom, width, height]
-
+    cax = fig.add_axes([0.92, 0.2, 0.02, 0.6]) 
+    
     def animate(i):
         ax.clear()
 
@@ -644,17 +637,17 @@ label_frame_alert.pack(expand='yes', fill='both')
 
 check = BooleanVar(root)
 checkbutton = ttk.Checkbutton(root, text='real-time', command=lambda: refresh(),variable = check)
-checkbutton.place(x=10,y=435)
+checkbutton.place(x=270,y=435)
 
 predict_button_prec = ttk.Button(root, text="predict prec.", command=lambda: predict('Prec'))
-predict_button_prec.place(x=260,y=435)
+predict_button_prec.place(x=93,y=435)
 predict_button_aod = ttk.Button(root, text="predict AOD", command=lambda: predict('AOD550nm'))
-predict_button_aod.place(x=260,y=405)
+predict_button_aod.place(x=93,y=405)
 
 hist_button_prec = ttk.Button(root, text="prec. 2h ago", command=lambda: historical('Prec'))
-hist_button_prec.place(x=175,y=435)
+hist_button_prec.place(x=10,y=435)
 hist_button_aod = ttk.Button(root, text="AOD 2h ago", command=lambda: historical('AOD550nm'))
-hist_button_aod.place(x=175,y=405)
+hist_button_aod.place(x=10,y=405)
 
 root.config(menu=menubar)
 root.protocol("WM_DELETE_WINDOW", sys.exit)
