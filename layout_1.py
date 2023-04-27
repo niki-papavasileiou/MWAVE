@@ -20,6 +20,9 @@ import sys
 import os
 
 """
+MWAVE (METEOSAT Weather Alert and Visualization Environment)
+MWARM (METEOSAT Weather Alert and Real-time Monitoring)
+
 NEED:
         Ellipse file
         color bar precipitation threshold
@@ -64,7 +67,6 @@ global counter
 counter = 0
 
 def info_predict():
-
     global text_info, label_frame_info
 
     category_info = "Category: " + category +"\n"
@@ -77,9 +79,7 @@ def info_predict():
     text_info.configure(state ='disabled')
 
 def file_comb(n_files):
-
     global df_comb
-
     pd.options.mode.chained_assignment = None  
 
     files_to_combine = []
@@ -92,9 +92,9 @@ def file_comb(n_files):
             lines = contents.split("\n")
             for j, line in enumerate(lines):
                 if line.strip():
-                    if i == index-n_files and j == 0:  # add title to new column
+                    if i == index-n_files and j == 0:                       # add title to new column
                         files_to_combine.append(f"{line.strip()}  time\n")
-                    elif i != index-n_files and j == 0:  # skip first line for other files
+                    elif i != index-n_files and j == 0:                     # skip first line for other files
                         continue
                     else:
                         files_to_combine.append(f"{line.strip()}  {time}\n")
@@ -102,7 +102,6 @@ def file_comb(n_files):
         f.writelines(files_to_combine)
     
     df_comb = pd.read_csv('combined_files.txt', delim_whitespace=' ', dtype='unicode')
-
     df_comb = df_comb.astype({
     'LAT': float,
     'LON': float,
@@ -125,7 +124,6 @@ def file_comb(n_files):
     return df_comb
 
 def alert():
-
     global label, counter
 
     if alert_var == "Prec":
@@ -144,11 +142,9 @@ def alert():
     counter = 3
 
 def info_ellipse():
-    
     global text_info, label_frame_info
 
     category_info = "Category: " + category +"\n"
-
     area()
     date()
     
@@ -160,11 +156,9 @@ def info_ellipse():
     text_info.configure(state ='disabled')
 
 def info():
-    
     global text_info, label_frame_info
 
     category_info = "Category: " + category +"\n"
-
     date()
     
     text_info = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
@@ -174,7 +168,6 @@ def info():
     text_info.configure(state ='disabled')
 
 def area():
- 
     global  Area, area_text
 
     lat1_w = radians(center_y)
@@ -209,7 +202,6 @@ def area():
     area_text = "\nArea: " +str(round(Area, 3)) + "  km^2\n"
 
 def date():
-    
     global date_info 
 
     date = str(max_data)
@@ -221,7 +213,6 @@ def date():
     date_info = "Date: " +day +"/" +month +"/" +year +" " +hour +":" +mins  
 
 def about_window():
-
     about_win = Toplevel(root)
     about_win.title("About...")
     about_win.geometry("500x600")
@@ -241,7 +232,6 @@ def about_window():
     text_about.configure(state ='disabled')
 
 def recent_file():
-
     global index, N, real_data, data, max_data
 
     N = len(fold_files)
@@ -265,15 +255,14 @@ def recent_file():
     max_data = max(data)
     
 def open_file():
-
     global fold_files, path
     path = askdirectory(title = 'select folder')        
     fold_files = os.listdir(path)
     recent_file()
 
 def display_ellipse(user):
-
     global  category, ax, df, alert_var, count
+
     count = 2
     if counter == 3:
         label.destroy()
@@ -294,7 +283,6 @@ def display_ellipse(user):
     df['Prec'][df['Prec']<0] = 0
 
     fig = plt.figure(figsize=(7,6))
-
     ax=plt.axes(projection=ccrs.PlateCarree())
 
     lons =df['LON']
@@ -312,13 +300,11 @@ def display_ellipse(user):
 
     ellipse_file()
     plt.show(block=False)
-
     info_ellipse()
     cities_ellipse()
     alert()
     
 def display(user):
-
     global  category, ax, df, count
     
     count = 1
@@ -339,7 +325,6 @@ def display(user):
     df['Prec'][df['Prec']<0] = 0
 
     fig = plt.figure(figsize=(7,6))
-
     ax=plt.axes(projection=ccrs.PlateCarree())
 
     lons =df['LON']
@@ -363,7 +348,6 @@ def display(user):
     info()
 
 def ellipse_file():
-
     global width, height, angle, center_x, center_y, og, ellipse_df, ellipse_points
 
     df_ellipse_file = pd.read_csv("ellipse_test.txt", sep = ',')
@@ -391,11 +375,9 @@ def ellipse_file():
     points = np.array(xy)
 
     ellipse_points = points[np.where(rad_cc <= 1.)[0]] 
-
     ellipse_df = df[df['LON'].isin(ellipse_points[:,0]) & df['LAT'].isin(ellipse_points[:,1])]
 
     og = sys.stdout
-
     with open("ellipse_data.txt",'w') as f:
         sys.stdout = f 
         np.set_printoptions(threshold=np.inf)
@@ -405,7 +387,6 @@ def ellipse_file():
     #ellipse_file_len = df_ellipse_file.shape[0]
 
 def cities_ellipse():
-
     global affected_cities, text_city, label_frame_city, cities
 
     cities_df = pd.read_csv("cities.csv", sep = ',')
@@ -428,11 +409,9 @@ def cities_ellipse():
     text_city.configure(state ='disabled')
 
 def refresh():
-
     global max_data, N_new, N, count, real_data, index
 
     if check.get():
-
         if category == 'AOD550nm':
             user = 'AOD550nm'       
         elif category == 'Precipitation':
@@ -442,7 +421,6 @@ def refresh():
         N_new = len(fold_files_new)              
 
         if (N_new != N):
-
             data = []                                           
             real_data = []
             for file in fold_files_new:
@@ -471,7 +449,6 @@ def refresh():
     root.after(1000, refresh)   
 
 def predict(user2):
-
     global category
 
     plt.close()
@@ -522,14 +499,13 @@ def predict(user2):
     info_predict()
 
 def historical(user2):
-
     df_comb = file_comb(8)
     df_comb = df_comb[['LAT', 'LON', user2]] 
 
     if user2=='Prec':
         vmin = 0 
         vmax = 20
-        category = 'Prec'
+        category = 'Precipitation'
     else:
         category = 'AOD550nm'
         vmin = 0
@@ -541,14 +517,13 @@ def historical(user2):
     
     def animate(i):
         ax.clear()
-
         data = df_comb.loc[df_comb.index == df_comb.index.unique()[i]]
 
         cs = ax.tricontourf(data["LON"], data["LAT"], data[category], vmin = vmin,vmax = vmax ,cmap="jet", transform=ccrs.PlateCarree())
         if user2 == 'Prec':
-            ax.set_title("Precipitation for {}".format(data.index[0]))
+            ax.set_title("Precipitation {}".format(data.index[0]))
         else:
-            ax.set_title("AOD for {}".format(data.index[0]))
+            ax.set_title("AOD {}".format(data.index[0]))
         
         ax.add_feature(cfeature.COASTLINE)
         ax.add_feature(cfeature.BORDERS, linestyle=':')   
@@ -559,7 +534,6 @@ def historical(user2):
     display_gif()
 
 def display_gif():
-
     from PIL import Image, ImageTk, ImageSequence
 
     gif = tk.Toplevel(root)
@@ -588,7 +562,7 @@ def display_gif():
 
 root = ThemedTk(theme='xpnative')
 root.geometry('352x490')
-root.title('Meteosat Observer')
+root.title('MWAVE')
 root.resizable(0,0)
 
 photo = tk.PhotoImage(file = 'icon.png')
