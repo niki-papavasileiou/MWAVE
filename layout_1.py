@@ -21,7 +21,7 @@ import os
 
 """
 MWAVE (METEOSAT Weather Alert and Visualization Environment)
-MWARM (METEOSAT Weather Alert and Real-time Monitoring)
+MWARM (METEOSAT Weather Alert and Remote Monitoring)
 
 NEED:
         Ellipse file
@@ -92,9 +92,9 @@ def file_comb(n_files):
             lines = contents.split("\n")
             for j, line in enumerate(lines):
                 if line.strip():
-                    if i == index-n_files and j == 0:                       # add title to new column
+                    if i == index-n_files and j == 0:  # add title to new column
                         files_to_combine.append(f"{line.strip()}  time\n")
-                    elif i != index-n_files and j == 0:                     # skip first line for other files
+                    elif i != index-n_files and j == 0:  # skip first line for other files
                         continue
                     else:
                         files_to_combine.append(f"{line.strip()}  {time}\n")
@@ -145,6 +145,7 @@ def info_ellipse():
     global text_info, label_frame_info
 
     category_info = "Category: " + category +"\n"
+
     area()
     date()
     
@@ -505,7 +506,7 @@ def historical(user2):
     if user2=='Prec':
         vmin = 0 
         vmax = 20
-        category = 'Precipitation'
+        category = 'Prec'
     else:
         category = 'AOD550nm'
         vmin = 0
@@ -521,9 +522,9 @@ def historical(user2):
 
         cs = ax.tricontourf(data["LON"], data["LAT"], data[category], vmin = vmin,vmax = vmax ,cmap="jet", transform=ccrs.PlateCarree())
         if user2 == 'Prec':
-            ax.set_title("Precipitation {}".format(data.index[0]))
+            ax.set_title("Precipitation for {}".format(data.index[0]))
         else:
-            ax.set_title("AOD {}".format(data.index[0]))
+            ax.set_title("AOD for {}".format(data.index[0]))
         
         ax.add_feature(cfeature.COASTLINE)
         ax.add_feature(cfeature.BORDERS, linestyle=':')   
