@@ -392,7 +392,11 @@ def cities_ellipse():
 
     text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
     text_city.place(x=35,y=175)
-    text_city.insert(tk.INSERT, str(affected_cities))
+    if len(cities) == 0:
+        mess = "There are no affected cities."
+        text_city.insert(tk.INSERT, mess)
+    else:
+        text_city.insert(tk.INSERT, str(affected_cities))
     text_city.configure(state ='disabled')
 
 def refresh():
