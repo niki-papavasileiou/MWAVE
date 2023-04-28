@@ -1,5 +1,4 @@
 from sklearn.covariance import EllipticEnvelope
-from math import radians, cos, sin, asin, sqrt 
 from tkinter.filedialog import askdirectory
 import matplotlib.animation as animation
 from matplotlib.patches import Ellipse
@@ -239,7 +238,7 @@ def display_ellipse(user):
         alert_var = 'AOD550nm'
         vmin = 0
         vmax =5
-        threshold = 3
+        threshold = 1
         bar = 'AOD'.format(threshold)
     elif user == 'Prec':
         category = 'Precipitation'
@@ -287,11 +286,12 @@ def display_ellipse(user):
         cbar = fig.colorbar(cs, ax=ax, shrink=0.4)
         cbar.set_label(bar)
         plt.tight_layout()
-        plt.show(block=False)
         ellipse_file()
         info_ellipse()
         cities_ellipse()
         alert(user)
+        plt.show(block=False)
+
     else:
         print("e")
         
@@ -377,6 +377,9 @@ def cities_ellipse():
     global affected_cities, text_city, label_frame_city, cities
 
     cities_df = pd.read_csv("cities.csv", sep = ',')
+    ellipse_file = pd.read_csv("ellipse_data.txt",delim_whitespace=True)
+    ellipse_lon = ellipse_file['LON']
+    ellipse_lat = ellipse_file['LAT']
 
     d = 3
     def truncate(f, n):
@@ -385,11 +388,11 @@ def cities_ellipse():
     city_lat = cities_df['lat'].astype(float).apply(lambda number: truncate(number, d))
     city_lng = cities_df['lng'].astype(float).apply(lambda number: truncate(number, d))
     
-    cities = cities_df[city_lng.isin(ellipse_points[:,0]) & city_lat.isin(ellipse_points[:,1])]
+    cities = cities_df[city_lng.isin(ellipse_lon) & city_lat.isin(ellipse_lat)]
     pd.options.mode.chained_assignment = None
     cities['city_info'] = cities['city'] + ', ' + cities['admin_name'] + ', ' + cities['country']
-    affected_cities = cities['city_info'].to_string(index=False)
-
+    affected_cities = cities['city_info'].to_string(index=False)    
+    
     text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
     text_city.place(x=35,y=175)
     if len(cities) == 0:
