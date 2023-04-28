@@ -386,11 +386,15 @@ def cities_ellipse():
     cities = cities_df[city_lng.isin(ellipse_points[:,0]) & city_lat.isin(ellipse_points[:,1])]
     pd.options.mode.chained_assignment = None
     cities['city_info'] = cities['city'] + ', ' + cities['admin_name'] + ', ' + cities['country']
-    affected_cities = cities['city_info'].to_string(index=False)
-
+    affected_cities = cities['city_info'].to_string(index=False)    
+    
     text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
     text_city.place(x=35,y=175)
-    text_city.insert(tk.INSERT, str(affected_cities))
+    if len(cities) == 0:
+        mess = "There are no affected cities."
+        text_city.insert(tk.INSERT, mess)
+    else:
+        text_city.insert(tk.INSERT, str(affected_cities))
     text_city.configure(state ='disabled')
 
 def refresh():
