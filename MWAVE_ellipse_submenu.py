@@ -24,21 +24,24 @@ MWAVE (METEOSAT Weather Alert and Visualization Environment)
 MWARM (METEOSAT Weather Alert and Remote Monitoring)
 
 NEED:
-        me i xoris cbar.set_label(bar)                          
-        color bar precipitation threshold       0-25/30 0.5-1, 1 mexri 5 ana 0.5 , 5-10 ana 1 , 10-20 ana 2 , 20-30 ana 5  // aod 0-1 ana 0.1, ana miso mexri 5 , 1-2 na 0.2 , 2-5 ana miso
+        me i xoris cbar.set_label(bar)      
+        area?                    
+        cities dataset
+    o   color bar precipitation threshold       0-25/30 0.5-1, 1 mexri 5 ana 0.5 , 5-10 ana 1 , 10-20 ana 2 , 20-30 ana 5  // aod 0-1 ana 0.1, ana miso mexri 5 , 1-2 na 0.2 , 2-5 ana miso
         alert threshold aod/prec     
         display_ellipse an den ikanopoiite to threshold ti na bgazo                    
 _____________________________________________________________________________________________________
 IDEAS:
-        add noaa, ecmwf data (wind speed, dir etc)[info]
+        add noaa, ecmwf data (temp, wind speed, dir etc)[info]
         diff. alarm?
+        user check - poli, diadromi(start,end,stasi)
 _____________________________________________________________________________________________________
 PREDICTION:
 
     -PREC-
 
 1h - 15min 
-        Decision Tree: MSE=3.8240309196316934e-07, MAE=1.318631352024541e-06, R2=0.9999978616679438         9sec  para poli pithano overfitting
+        Decision Tree: MSE=3.8240309196316934e-07, MAE=1.318631352024541e-06, R2=0.9999978616679438         9sec  full overfitting
         Random Forest: MSE=1.3879367966356632e-08, MAE=3.8376719357693646e-07, R2 = 0.9999999223889711      +++++++ sec
  ->     SVM - MSE: 0.0098, MAE: 0.0987, R2 Score: 0.9453                                                    12sec Sigura oxi overfitting
 
@@ -255,14 +258,16 @@ def display_ellipse(user):
     longitudes = df["LON"].to_numpy()
     values = df[user].to_numpy()
     dangerous_points = np.column_stack((longitudes[values >= threshold], latitudes[values >= threshold]))
-    if dangerous_points.size > 0:
-        dbscan = DBSCAN(eps=0.5, min_samples=3).fit(dangerous_points)
-        labels = dbscan.labels_
-        unique_labels = set(labels)
+    dbscan = DBSCAN(eps=0.5, min_samples=3).fit(dangerous_points)
+    labels = dbscan.labels_
+    unique_labels = set(labels)
 
+    if -1 in unique_labels and len(unique_labels) == 1:  
+        print("e")
+    else:
         fig, ax = plt.subplots(figsize=(7,7), subplot_kw={'projection': ccrs.PlateCarree()})
         cs = ax.tricontourf(longitudes, latitudes, values, vmin=vmin, vmax=vmax, origin='lower',  
-                            locator=ticker.MaxNLocator(150), cmap='jet', extend='both')
+                                locator=ticker.MaxNLocator(150), cmap='jet', extend='both')
 
         for label in unique_labels:
             if label != -1:
@@ -275,10 +280,8 @@ def display_ellipse(user):
                 height = 5*np.sqrt(covariance[1, 1])
                 width = 5*np.sqrt(covariance[0, 0])
                 angle = np.rad2deg(np.arccos(covariance[0, 1] / np.sqrt(covariance[0, 0] * covariance[1, 1])))
-                ellipse = Ellipse(xy=center, width=width,
-                                height=height,
-                                angle=angle,
-                                edgecolor='red', fc='None',lw=1.5,  transform=ccrs.PlateCarree())
+                ellipse = Ellipse(xy=center, width=width, height=height, angle=angle,
+                                    edgecolor='red', fc='None', lw=1.5, transform=ccrs.PlateCarree())
                 ax.add_patch(ellipse)
 
         ax.coastlines(resolution='10m')
@@ -291,9 +294,7 @@ def display_ellipse(user):
         cities_ellipse()
         alert(user)
         plt.show(block=False)
-    else:
-        print("e")
-    
+
 def display(user):
     global  category, ax, df, count
     
@@ -338,7 +339,7 @@ def display(user):
     info()
 
 def ellipse_file():
-    global width, height, angle, center, og, ellipse_df, ellipse_points
+    global width, height, angle, center, ellipse_df, ellipse_points
 
     all_ellipse_data = pd.DataFrame()
     for label in unique_labels:
