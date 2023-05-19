@@ -113,11 +113,11 @@ def alert(user):
     if user == 'Hail':
         threshold = 3
     else:
-        threshold = 5
+        threshold = 2
 
     if (ellipse_df[user] > threshold).any():
         alert_label = tk.Label(root, text="\t\tALERT", font=('calibri', 11, 'bold'))
-        alert_label.place(x=30, y=480) 
+        alert_label.place(x=0, y=340) 
     else:
         alert_label = tk.Label(root, text="""\t------ALERT------
                 aod prec 5 mics fks qxf dekxwhxejwha
