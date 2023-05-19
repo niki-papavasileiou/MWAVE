@@ -44,8 +44,8 @@ PREDICTION:
 
 """
 
-global counter,no
-no = 0
+global counter, cnt
+cnt = 0
 counter = 0
 
 def info_predict():
@@ -139,7 +139,7 @@ def info_ellipse():
     text_info.configure(state ='disabled')
 
 def info():
-    global text_info, label_frame_info,no
+    global text_info, label_frame_info,cnt
 
     category_info = "Category: " + category +"\n"
     date()
@@ -148,11 +148,10 @@ def info():
     text_info.place(x=20,y=17)
     text_info.insert(tk.INSERT, category_info)
     text_info.insert(tk.INSERT, date_info)
-    if no == 1:
+    if cnt == 1:
         ell = "\nNo dangerous phenomena detected"
         text_info.insert(tk.INSERT, ell)
-        no = 0
-
+        cnt = 0
     text_info.configure(state ='disabled')
 
 def date():
@@ -215,7 +214,7 @@ def open_file():
     recent_file()
 
 def display_ellipse(user):
-    global  category, ax, df, alert_var, count, unique_labels, dangerous_points, labels,  no,alert_label
+    global  category, ax, df, alert_var, count, unique_labels, dangerous_points, labels, cnt, alert_label
     count = 2
 
     if counter == 3:
@@ -248,6 +247,7 @@ def display_ellipse(user):
     df = pd.read_csv("most_recent.txt",delim_whitespace=True)
     df['Prec'][df['Prec']<0] = 0
     df = df.dropna()
+    df[user] = df[user].interpolate(method='linear')
 
     latitudes = df["LAT"].to_numpy()
     longitudes = df["LON"].to_numpy()
@@ -260,8 +260,8 @@ def display_ellipse(user):
         unique_labels = set(labels)
 
         if -1 in unique_labels and len(unique_labels) == 1:  
-            global no
-            no = 1
+            global cnt
+            cnt = 1
             display(user)
             
         else:
