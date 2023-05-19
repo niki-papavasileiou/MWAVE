@@ -29,7 +29,8 @@ NEED:
         cities dataset
     o   color bar precipitation threshold       0-25/30 0.5-1, 1 mexri 5 ana 0.5 , 5-10 ana 1 , 10-20 ana 2 , 20-30 ana 5  // aod 0-1 ana 0.1, ana miso mexri 5 , 1-2 na 0.2 , 2-5 ana miso
         alert threshold aod/prec     
-        display_ellipse an den ikanopoiite to threshold ti na bgazo                    
+        display_ellipse an den ikanopoiite to threshold ti na bgazo
+        HAIL random n                    
 _____________________________________________________________________________________________________
 IDEAS:
         add noaa, ecmwf data (temp, wind speed, dir etc)[info]
@@ -41,34 +42,10 @@ PREDICTION:
     -PREC- clear 0-2..
     aod 0.5
 
-1h - 15min 
-        Decision Tree: MSE=3.8240309196316934e-07, MAE=1.318631352024541e-06, R2=0.9999978616679438         9sec  full overfitting
-        Random Forest: MSE=1.3879367966356632e-08, MAE=3.8376719357693646e-07, R2 = 0.9999999223889711      +++++++ sec
- ->     SVM - MSE: 0.0098, MAE: 0.0987, R2 Score: 0.9453                                                    12sec Sigura oxi overfitting
-
-        Decision Tree - Average training score: 1.0
-        Decision Tree - Average test score: 0.9999559783171431
-        Random Forest - Average training score: 0.9999976056839156
-        Random Forest - Average test score: 0.9999402294939896
-        SVM - Average training score: 0.9443328766326419
-        SVM - Average test score: 0.9449091031719673
-
-    -AOD550nm-
-
-1h -15min 
-        Decision Tree: MSE=0.05133421231952331, MAE=0.04634249191515367, R2=0.12140441966339355
-        Random Forest: MSE=0.030373784298989077, MAE=0.039873654859820216, R2=0.48014644742021395
-        SVM - MSE: 0.0096, MAE: 0.0972, R2 Score: 0.8600
-
-        Decision Tree - Average training score: 1.0
-        Decision Tree - Average test score: 0.0810006804529102
-        Random Forest - Average training score: 0.9260606348248327
-        Random Forest - Average test score: 0.4641215850731559
-        SVM - Average training score: 0.8593825642352347
-        SVM - Average test score: 0.8599873602796984
 """
 
-global counter
+global counter,no
+no = 0
 counter = 0
 
 def info_predict():
@@ -78,17 +55,17 @@ def info_predict():
     prediction_str = 'Short-term prediction'
     
     text_info = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_info.place(x=35,y=17)
+    text_info.place(x=20,y=17)
     text_info.insert(tk.INSERT, category_info)
     text_info.insert(tk.INSERT, prediction_str)
     text_info.configure(state ='disabled')
 
-def file_comb(n_files):
+def file_comb(n_files,step):
     global df_comb
     pd.options.mode.chained_assignment = None  
 
     files_to_combine = []
-    for i in range(index-n_files, index+1):
+    for i in range(index-n_files, index+1,step):
         file_path = f"{path}/{real_data[i]}"
         with open(file_path, 'r') as f:
             contents = f.read()
@@ -123,26 +100,29 @@ def file_comb(n_files):
     })
 
     df_comb['Prec'] = df_comb['Prec'].clip(lower=0)
-    df_comb['time'] = pd.to_datetime(df_comb['time'], format='%H%M').dt.time
-    df_comb = df_comb.set_index('time')
+    # df_comb['time'] = pd.to_datetime(df_comb['time'], format='%H%M').dt.time
+    # df_comb = df_comb.set_index('time')
     
     return df_comb
 
 def alert(user):
-    global label, counter
+    global alert_label, counter
 
     if user == "Prec":
-        threshold = 6
+        threshold = 3
+    if user == 'Hail':
+        threshold = 3
     else:
         threshold = 5
 
-    if (ellipse_df[alert_var] > threshold).any():
-        Label(root, text = "\t\tALERT").place(x = 30, y = 480) 
+    if (ellipse_df[user] > threshold).any():
+        alert_label = tk.Label(root, text="\t\tALERT", font=('calibri', 11, 'bold'))
+        alert_label.place(x=30, y=480) 
     else:
-        label = tk.Label(root, text = """\t------ALERT------
-                    aod prec 5 mics fks qxf dekxwhxejwha
-                    """,font=('calibri', 11,'bold'))
-        label.place(x=0,y=340)
+        alert_label = tk.Label(root, text="""\t------ALERT------
+                aod prec 5 mics fks qxf dekxwhxejwha
+                """, font=('calibri', 11, 'bold'))
+        alert_label.place(x=0, y=340)
         
     counter = 3
 
@@ -153,21 +133,26 @@ def info_ellipse():
     date()
     
     text_info = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_info.place(x=35,y=17)
+    text_info.place(x=20,y=17)
     text_info.insert(tk.INSERT, category_info)
     text_info.insert(tk.INSERT, date_info)
     text_info.configure(state ='disabled')
 
 def info():
-    global text_info, label_frame_info
+    global text_info, label_frame_info,no
 
     category_info = "Category: " + category +"\n"
     date()
     
     text_info = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_info.place(x=35,y=17)
+    text_info.place(x=20,y=17)
     text_info.insert(tk.INSERT, category_info)
     text_info.insert(tk.INSERT, date_info)
+    if no == 1:
+        ell = "\nNo dangerous phenomena detected"
+        text_info.insert(tk.INSERT, ell)
+        no = 0
+
     text_info.configure(state ='disabled')
 
 def date():
@@ -230,10 +215,12 @@ def open_file():
     recent_file()
 
 def display_ellipse(user):
-    global  category, ax, df, alert_var, count, unique_labels, dangerous_points, labels, label
+    global  category, ax, df, alert_var, count, unique_labels, dangerous_points, labels,  no,alert_label
     count = 2
+
     if counter == 3:
-        label.destroy()
+        alert_label.destroy()
+    
     plt.close()
 
     if user == 'AOD550nm':
@@ -241,14 +228,14 @@ def display_ellipse(user):
         alert_var = 'AOD550nm'
         vmin = 0
         vmax =5
-        threshold = 3
+        threshold = 2
         bar = 'AOD'.format(threshold)
     elif user == 'Hail':
         category = 'Hail'
         alert_var = 'Hail'
         vmin = 0
         vmax = 20
-        threshold = 5
+        threshold = 6
         bar = 'Hail'.format(threshold)
     elif user == 'Prec':
         category = 'Precipitation'
@@ -260,54 +247,67 @@ def display_ellipse(user):
         
     df = pd.read_csv("most_recent.txt",delim_whitespace=True)
     df['Prec'][df['Prec']<0] = 0
+    df = df.dropna()
+
     latitudes = df["LAT"].to_numpy()
     longitudes = df["LON"].to_numpy()
     values = df[user].to_numpy()
     dangerous_points = np.column_stack((longitudes[values >= threshold], latitudes[values >= threshold]))
     
-    dbscan = DBSCAN(eps=0.5, min_samples=3).fit(dangerous_points)
-    labels = dbscan.labels_
-    unique_labels = set(labels)
+    if dangerous_points.shape[0] >= 3:
+        dbscan = DBSCAN(eps=0.5, min_samples=3).fit(dangerous_points)
+        labels = dbscan.labels_
+        unique_labels = set(labels)
 
-    if -1 in unique_labels and len(unique_labels) == 1:  
-        print("e")
+        if -1 in unique_labels and len(unique_labels) == 1:  
+            global no
+            no = 1
+            display(user)
+            
+        else:
+            fig, ax = plt.subplots(figsize=(7,7), subplot_kw={'projection': ccrs.PlateCarree()})
+            cs = ax.tricontourf(longitudes, latitudes, values, vmin=vmin, vmax=vmax, origin='lower',  
+                                    locator=ticker.MaxNLocator(150), cmap='jet', extend='neither')
+
+            for label in unique_labels:
+                if label != -1:
+                    cluster_points = dangerous_points[labels == label]
+                    ee = EllipticEnvelope().fit(cluster_points)
+
+                    global height, width, angle, center
+                    center = ee.location_
+                    covariance = ee.covariance_
+                    height = 5*np.sqrt(covariance[1, 1])
+                    width = 5*np.sqrt(covariance[0, 0])
+                    angle = np.rad2deg(np.arccos(covariance[0, 1] / np.sqrt(covariance[0, 0] * covariance[1, 1])))
+                    ellipse = Ellipse(xy=center, width=width, height=height, angle=angle,
+                                        edgecolor='red', fc='None', lw=1.5, transform=ccrs.PlateCarree())
+                    ax.add_patch(ellipse)
+
+            ax.coastlines(resolution='10m')
+            ax.add_feature(cfeature.BORDERS,linestyle=':')
+            
+            cbar_vmax = np.max(values)
+            cbar = plt.colorbar(cs,ax=ax, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=5))
+
+            cbar.set_label(bar)
+            plt.tight_layout()
+            ellipse_file()
+            info_ellipse()
+            cities_ellipse()
+            alert(user)
+            plt.show(block=False)
     else:
-        fig, ax = plt.subplots(figsize=(7,7), subplot_kw={'projection': ccrs.PlateCarree()})
-        cs = ax.tricontourf(longitudes, latitudes, values, vmin=vmin, vmax=vmax, origin='lower',  
-                                locator=ticker.MaxNLocator(150), cmap='jet', extend='both')
-
-        for label in unique_labels:
-            if label != -1:
-                cluster_points = dangerous_points[labels == label]
-                ee = EllipticEnvelope().fit(cluster_points)
-
-                global height, width, angle, center
-                center = ee.location_
-                covariance = ee.covariance_
-                height = 5*np.sqrt(covariance[1, 1])
-                width = 5*np.sqrt(covariance[0, 0])
-                angle = np.rad2deg(np.arccos(covariance[0, 1] / np.sqrt(covariance[0, 0] * covariance[1, 1])))
-                ellipse = Ellipse(xy=center, width=width, height=height, angle=angle,
-                                    edgecolor='red', fc='None', lw=1.5, transform=ccrs.PlateCarree())
-                ax.add_patch(ellipse)
-
-        ax.coastlines(resolution='10m')
-        ax.add_feature(cfeature.BORDERS,linestyle=':')
-        cbar = fig.colorbar(cs, ax=ax, shrink=0.4)
-        cbar.set_label(bar)
-        plt.tight_layout()
-        ellipse_file()
-        info_ellipse()
-        cities_ellipse()
-        alert(user)
-        plt.show(block=False)
+        no = 1
+        display(user)
 
 def display(user):
-    global  category, ax, df, count
+    global  category, ax, df, count,alert_label
     
     count = 1
     if counter == 3:
-        label.destroy()
+        alert_label.destroy()
+        
     plt.close()
       
     if user == 'AOD550nm':
@@ -325,6 +325,8 @@ def display(user):
         
     df = pd.read_csv("most_recent.txt",delim_whitespace=True)
     df['Prec'][df['Prec']<0] = 0
+    # df = df.dropna()
+    df[user] = df[user].interpolate(method='linear')
 
     fig = plt.figure(figsize=(7,6))
     ax=plt.axes(projection=ccrs.PlateCarree())
@@ -332,17 +334,17 @@ def display(user):
     lons =df['LON']
     lats =df['LAT']
     z = df[user]
-    
-    cs = ax.tricontourf(lons, lats, z, vmin=vmin, vmax=vmax ,locator=ticker.MaxNLocator(150),
-                        origin='lower',
-                        transform = ccrs.PlateCarree(),cmap='jet',extend='both')
 
+    cs = ax.tricontourf(lons, lats, z, vmin=vmin, vmax=vmax,  locator=ticker.MaxNLocator(150),
+                        origin='lower', transform = ccrs.PlateCarree(), cmap='jet')
+
+    cbar_vmax = np.max(z)
+    plt.colorbar(cs, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=5))
     ax.coastlines(resolution='10m')
     ax.add_feature(cfeature.BORDERS, linestyle=':')
-    plt.colorbar(cs,shrink=0.5)
 
     text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_city.place(x=35,y=175)
+    text_city.place(x=20,y=175)
     text_city.configure(state ='disabled')
 
     plt.tight_layout()
@@ -403,7 +405,7 @@ def cities_ellipse():
     affected_cities = cities['city_info'].to_string(index=False)    
     
     text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_city.place(x=35,y=175)
+    text_city.place(x=20,y=175)
     if len(cities) == 0:
         mess = "There are no affected cities."
         text_city.insert(tk.INSERT, mess)
@@ -470,13 +472,13 @@ def predict():
         vmax =20
 
     plt.close()
-    df_comb = file_comb(3)
+    df_comb = file_comb(8,1)
     
     df = df_comb.dropna()
-    df = df[['LAT', 'LON', user]]
-    X = df[['LAT', 'LON', user]].values
+    df = df[['LAT', 'LON', user,'time']]
+    X = df[['LAT', 'LON', user,'time']].values
     y = df[user].values
-    
+
     # from sklearn.ensemble import RandomForestRegressor
     # rf = RandomForestRegressor(random_state=42, n_estimators=100)
     # rf.fit(X, y)
@@ -490,22 +492,24 @@ def predict():
     svm = SVR(kernel='linear')
     svm.fit(X, y)
     y_pred = svm.predict(X)
-    
+    # print(max(y_pred))
+
     fig = plt.figure(figsize=(6, 6))
     ax = plt.axes(projection=ccrs.PlateCarree())
     
     cs = ax.tricontourf(df_comb['LON'], df_comb['LAT'], y_pred, vmin=vmin, vmax=vmax, locator=ticker.MaxNLocator(150),
                         origin='lower',
-                        transform = ccrs.PlateCarree(),cmap='jet',extend='both')
+                        transform = ccrs.PlateCarree(),cmap='jet',extend='neither')
     
     ax.coastlines(resolution='10m')
     ax.add_feature(cfeature.BORDERS, linestyle=':')
-    plt.colorbar(cs,shrink=0.5)
+    cbar_vmax = np.max(y_pred)
+    plt.colorbar(cs, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=5))
     plt.tight_layout()
     plt.show(block=False)
     
     text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_city.place(x=35,y=175)
+    text_city.place(x=20,y=175)
     text_city.configure(state ='disabled')
     info_predict()
 
@@ -523,7 +527,7 @@ def historical():
         vmin =0
         vmax =20
 
-    df_comb = file_comb(8)
+    df_comb = file_comb(8,1)
     df_comb = df_comb[['LAT', 'LON', user]]
 
     fig = plt.figure(figsize=(6, 6))
@@ -578,7 +582,7 @@ def display_gif():
     root.after(0, update_image)
 
 root = ThemedTk(theme='xpnative')
-root.geometry('352x490')
+root.geometry('325x490')
 root.title('MWAVE')
 root.resizable(0,0)
 
@@ -619,13 +623,13 @@ help_.add_command(label='About...', command = about_window)
 label_frame_info = ttk.LabelFrame(root, text='Info')
 label_frame_info.pack(expand='yes', fill='both')
 text_info = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-text_info.place(x=35,y=17)
+text_info.place(x=20,y=17)
 text_info.configure(state ='disabled')
 
 label_frame_city = ttk.LabelFrame(root, text='Affected Cities')
 label_frame_city.pack(expand='yes', fill='both')
 text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-text_city.place(x=35,y=175)
+text_city.place(x=20,y=175)
 text_city.configure(state ='disabled')
 
 label_frame_alert = ttk.LabelFrame(root, text='')
@@ -633,7 +637,7 @@ label_frame_alert.pack(expand='yes', fill='both')
 
 check = BooleanVar(root)
 checkbutton = ttk.Checkbutton(root, text='real-time', command=lambda: refresh(),variable = check)
-checkbutton.place(x=270,y=435)
+checkbutton.place(x=248,y=440)
 
 predict_button_prec = ttk.Button(root, text="predict", command=lambda: predict())
 predict_button_prec.place(x=10,y=405)
