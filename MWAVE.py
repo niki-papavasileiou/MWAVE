@@ -286,7 +286,7 @@ def display_ellipse(user):
             ax.add_feature(cfeature.BORDERS,linestyle=':')
             
             cbar_vmax = np.max(values)
-            cbar = plt.colorbar(cs,ax=ax, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=5))
+            cbar = plt.colorbar(cs,ax=ax, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=7))
 
             cbar.set_label(bar)
             plt.tight_layout()
@@ -337,7 +337,7 @@ def display(user):
                         origin='lower', transform = ccrs.PlateCarree(), cmap='jet')
 
     cbar_vmax = np.max(z)
-    plt.colorbar(cs, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=5))
+    plt.colorbar(cs, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=7))
     ax.coastlines(resolution='10m')
     ax.add_feature(cfeature.BORDERS, linestyle=':')
 
@@ -502,7 +502,7 @@ def predict():
     ax.coastlines(resolution='10m')
     ax.add_feature(cfeature.BORDERS, linestyle=':')
     cbar_vmax = np.max(y_pred)
-    plt.colorbar(cs, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=5))
+    plt.colorbar(cs, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=7))
     plt.tight_layout()
     plt.show(block=False)
     
