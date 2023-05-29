@@ -100,8 +100,8 @@ def file_comb(n_files,step):
     })
 
     df_comb['Prec'] = df_comb['Prec'].clip(lower=0)
-    # df_comb['time'] = pd.to_datetime(df_comb['time'], format='%H%M').dt.time
-    # df_comb = df_comb.set_index('time')
+    df_comb['time'] = pd.to_datetime(df_comb['time'], format='%H%M').dt.time
+    df_comb = df_comb.set_index('time')
     
     return df_comb
 
@@ -286,7 +286,7 @@ def display_ellipse(user):
             ax.add_feature(cfeature.BORDERS,linestyle=':')
             
             cbar_vmax = np.max(values)
-            cbar = plt.colorbar(cs,ax=ax, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=7))
+            cbar = plt.colorbar(cs,ax=ax, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=7), format='%.1f')
 
             cbar.set_label(bar)
             plt.tight_layout()
@@ -333,11 +333,11 @@ def display(user):
     lats =df['LAT']
     z = df[user]
 
-    cs = ax.tricontourf(lons, lats, z, vmin=vmin, vmax=vmax,  locator=ticker.MaxNLocator(150),
+    cs = ax.tricontourf(lons, lats, z, vmin=vmin, vmax=vmax, locator=ticker.MaxNLocator(150),
                         origin='lower', transform = ccrs.PlateCarree(), cmap='jet')
 
     cbar_vmax = np.max(z)
-    plt.colorbar(cs, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=7))
+    plt.colorbar(cs, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num = 7), format='%.1f')
     ax.coastlines(resolution='10m')
     ax.add_feature(cfeature.BORDERS, linestyle=':')
 
@@ -502,7 +502,7 @@ def predict():
     ax.coastlines(resolution='10m')
     ax.add_feature(cfeature.BORDERS, linestyle=':')
     cbar_vmax = np.max(y_pred)
-    plt.colorbar(cs, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=7))
+    plt.colorbar(cs, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=7), format='%.1f')
     plt.tight_layout()
     plt.show(block=False)
     
@@ -528,7 +528,7 @@ def historical():
     df_comb = file_comb(8,1)
     df_comb = df_comb[['LAT', 'LON', user]]
 
-    fig = plt.figure(figsize=(6, 6))
+    fig = plt.figure(figsize=(8, 6))
     ax = plt.axes(projection=ccrs.PlateCarree())
     cax = fig.add_axes([0.92, 0.2, 0.02, 0.6]) 
     
@@ -546,7 +546,7 @@ def historical():
         
         ax.coastlines(resolution='10m')
         ax.add_feature(cfeature.BORDERS, linestyle=':')   
-        cb = fig.colorbar(cs, cax=cax, ticks=np.linspace(0, 20, 11))
+        cb = fig.colorbar(cs, cax=cax, ticks=np.linspace(0, 20, 11), format='%.1f')
 
     ani = animation.FuncAnimation(fig, animate, frames=len(df_comb.index.unique()), interval=500)
     ani.save("animated_plot.gif", writer="pillow")
