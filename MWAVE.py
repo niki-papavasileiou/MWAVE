@@ -135,9 +135,10 @@ def info_ellipse():
     text_info.insert(tk.INSERT, category_info)
     text_info.insert(tk.INSERT, date_info)
     text_info.configure(state ='disabled')
+    
 
 def info():
-    global text_info, label_frame_info,cnt
+    global text_info, label_frame_info, cnt
 
     category_info = "Category: " + category +"\n"
     date()
@@ -296,7 +297,7 @@ def display_ellipse(user):
             alert(user)
             plt.show(block=False)
     else:
-        no = 1
+        cnt = 1
         display(user)
 
 def display(user):
