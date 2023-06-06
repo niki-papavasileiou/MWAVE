@@ -30,7 +30,7 @@ NEED:
     o   color bar precipitation threshold       0-25/30 0.5-1, 1 mexri 5 ana 0.5 , 5-10 ana 1 , 10-20 ana 2 , 20-30 ana 5  // aod 0-1 ana 0.1, ana miso mexri 5 , 1-2 na 0.2 , 2-5 ana miso
         alert threshold aod/prec     
         display_ellipse an den ikanopoiite to threshold ti na bgazo
-        HAIL random n                    
+        HAIL random n                     
 _____________________________________________________________________________________________________
 IDEAS:
         add noaa, ecmwf data (temp, wind speed, dir etc)[info]
