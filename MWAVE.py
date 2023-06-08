@@ -22,26 +22,6 @@ import os
 """
 MWAVE (METEOSAT Weather Alert and Visualization Environment)
 MWARM (METEOSAT Weather Alert and Remote Monitoring)
-
-NEED:
-        me i xoris cbar.set_label(bar)      
-        area?                    
-        cities dataset
-    o   color bar precipitation threshold       0-25/30 0.5-1, 1 mexri 5 ana 0.5 , 5-10 ana 1 , 10-20 ana 2 , 20-30 ana 5  // aod 0-1 ana 0.1, ana miso mexri 5 , 1-2 na 0.2 , 2-5 ana miso
-        alert threshold aod/prec     
-        display_ellipse an den ikanopoiite to threshold ti na bgazo
-        HAIL random n                     
-_____________________________________________________________________________________________________
-IDEAS:
-        add noaa, ecmwf data (temp, wind speed, dir etc)[info]
-        diff. alarm?
-        user check - poli, diadromi(start,end,stasi)
-_____________________________________________________________________________________________________
-PREDICTION:
-
-    -PREC- clear 0-2..
-    aod 0.5
-
 """
 
 global counter, cnt
@@ -239,11 +219,27 @@ def display_ellipse(user):
         category = 'Precipitation'
         alert_var = 'Prec'
         vmin = 0
-        vmax = 30
+        vmax = 20
         threshold = 6
         bar = 'Precipitation mm/hr'.format(threshold)
         
-    df = pd.read_csv("most_recent.txt",delim_whitespace=True)
+    df = pd.read_csv("most_recent.txt",delim_whitespace=True,low_memory=False)
+    df = df.replace({',': '.'}, regex=True)
+
+    df = df.astype({
+    'LAT': float,
+    'LON': float,
+    'BT5': float,
+    'BT6': float,
+    'BT7': float,
+    'BT9': float,
+    'BT10': float,
+    'Prec': float,
+    'Hail': float,
+    'Lgtns': float,
+    'AOD550nm': float,
+    })
+
     df['Prec'][df['Prec']<0] = 0
     df = df.dropna()
     df[user] = df[user].interpolate(method='linear')
@@ -288,9 +284,9 @@ def display_ellipse(user):
             
             cbar_vmax = np.max(values)
             cbar = plt.colorbar(cs,ax=ax, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=7), format='%.1f')
+            plt.tight_layout()
 
             cbar.set_label(bar)
-            plt.tight_layout()
             ellipse_file()
             info_ellipse()
             cities_ellipse()
@@ -322,12 +318,28 @@ def display(user):
         vmin = 0
         vmax =20
         
-    df = pd.read_csv("most_recent.txt",delim_whitespace=True)
+    df = pd.read_csv("most_recent.txt",delim_whitespace=True,low_memory=False)
+    df = df.replace({',': '.'}, regex=True)
+
+    df = df.astype({
+    'LAT': float,
+    'LON': float,
+    'BT5': float,
+    'BT6': float,
+    'BT7': float,
+    'BT9': float,
+    'BT10': float,
+    'Prec': float,
+    'Hail': float,
+    'Lgtns': float,
+    'AOD550nm': float,
+    })
+
     df['Prec'][df['Prec']<0] = 0
     # df = df.dropna()
     df[user] = df[user].interpolate(method='linear')
 
-    fig = plt.figure(figsize=(7,6))
+    fig = plt.figure(figsize=(7,7))
     ax=plt.axes(projection=ccrs.PlateCarree())
 
     lons =df['LON']
@@ -339,6 +351,7 @@ def display(user):
 
     cbar_vmax = np.max(z)
     plt.colorbar(cs, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num = 7), format='%.1f')
+    plt.tight_layout()
     ax.coastlines(resolution='10m')
     ax.add_feature(cfeature.BORDERS, linestyle=':')
 
@@ -346,7 +359,6 @@ def display(user):
     text_city.place(x=20,y=175)
     text_city.configure(state ='disabled')
 
-    plt.tight_layout()
     plt.show(block=False)
     info()
 
@@ -472,26 +484,19 @@ def predict():
 
     plt.close()
     df_comb = file_comb(8,1)
-    
+    df_comb = df_comb.sort_index(ascending=True)
+    print('ok')
     df = df_comb.dropna()
-    df = df[['LAT', 'LON', user,'time']]
-    X = df[['LAT', 'LON', user,'time']].values
+    df = df[['LAT', 'LON', user]]
+    X = df[['LAT', 'LON',user]].values
     y = df[user].values
-
-    # from sklearn.ensemble import RandomForestRegressor
-    # rf = RandomForestRegressor(random_state=42, n_estimators=100)
-    # rf.fit(X, y)
-    # y_pred = rf.predict(X)
-
-    # from sklearn.tree import DecisionTreeRegressor
-    # model = DecisionTreeRegressor(random_state=42)
-    # model.fit(X, y)
-    # y_pred = model.predict(X)
-
+    
+# Train the SVR model
     svm = SVR(kernel='linear')
     svm.fit(X, y)
+
+    # Make predictions on the test set
     y_pred = svm.predict(X)
-    # print(max(y_pred))
 
     fig = plt.figure(figsize=(6, 6))
     ax = plt.axes(projection=ccrs.PlateCarree())
@@ -548,6 +553,7 @@ def historical():
         ax.coastlines(resolution='10m')
         ax.add_feature(cfeature.BORDERS, linestyle=':')   
         cb = fig.colorbar(cs, cax=cax, ticks=np.linspace(0, 20, 11), format='%.1f')
+        plt.subplots_adjust(right=0.88)
 
     ani = animation.FuncAnimation(fig, animate, frames=len(df_comb.index.unique()), interval=500)
     ani.save("animated_plot.gif", writer="pillow")
