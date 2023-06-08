@@ -206,7 +206,7 @@ def display_ellipse(user):
         alert_var = 'AOD550nm'
         vmin = 0
         vmax =5
-        threshold = 2
+        threshold = 4
         bar = 'AOD'.format(threshold)
     elif user == 'Hail':
         category = 'Hail'
@@ -220,7 +220,7 @@ def display_ellipse(user):
         alert_var = 'Prec'
         vmin = 0
         vmax = 20
-        threshold = 6
+        threshold = 10
         bar = 'Precipitation mm/hr'.format(threshold)
         
     df = pd.read_csv("most_recent.txt",delim_whitespace=True,low_memory=False)
@@ -247,7 +247,7 @@ def display_ellipse(user):
     latitudes = df["LAT"].to_numpy()
     longitudes = df["LON"].to_numpy()
     values = df[user].to_numpy()
-    dangerous_points = np.column_stack((longitudes[values >= threshold], latitudes[values >= threshold]))
+    dangerous_points = np.column_stack((longitudes[values > threshold], latitudes[values > threshold]))
     
     if dangerous_points.shape[0] >= 3:
         dbscan = DBSCAN(eps=0.5, min_samples=3).fit(dangerous_points)
@@ -264,19 +264,27 @@ def display_ellipse(user):
             cs = ax.tricontourf(longitudes, latitudes, values, vmin=vmin, vmax=vmax, origin='lower',  
                                     locator=ticker.MaxNLocator(150), cmap='jet', extend='neither')
 
+            from sklearn.decomposition import PCA
+            import matplotlib.patches as patches
+
+            # Inside your loop:
             for label in unique_labels:
                 if label != -1:
                     cluster_points = dangerous_points[labels == label]
-                    ee = EllipticEnvelope().fit(cluster_points)
+                    
+                    # Compute PCA of the cluster
+                    pca = PCA(n_components=2)
+                    pca.fit(cluster_points)
 
-                    global height, width, angle, center
-                    center = ee.location_
-                    covariance = ee.covariance_
-                    height = 5*np.sqrt(covariance[1, 1])
-                    width = 5*np.sqrt(covariance[0, 0])
-                    angle = np.rad2deg(np.arccos(covariance[0, 1] / np.sqrt(covariance[0, 0] * covariance[1, 1])))
-                    ellipse = Ellipse(xy=center, width=width, height=height, angle=angle,
-                                        edgecolor='red', fc='None', lw=1.5, transform=ccrs.PlateCarree())
+                    # Determine the angle of rotation
+                    angle = np.arctan2(pca.components_[0, 1], pca.components_[0, 0])
+                    angle = np.rad2deg(angle)
+
+                    width, height = 5 * np.sqrt(pca.explained_variance_)
+
+                    center = pca.mean_
+                    ellipse = patches.Ellipse(center, width, height, angle = angle, edgecolor='red', fc='None', lw=1.5)
+
                     ax.add_patch(ellipse)
 
             ax.coastlines(resolution='10m')
