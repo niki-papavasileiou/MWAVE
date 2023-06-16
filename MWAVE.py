@@ -64,7 +64,7 @@ def file_comb(n_files,step):
         f.writelines(files_to_combine)
     
     df_comb = pd.read_csv('combined_files.txt', delim_whitespace=' ', dtype='unicode')
-    df_comb = df_comb.astype({
+    df_comb = df_comb.astype({ 
     'LAT': float,
     'LON': float,
     'BT5': float,
