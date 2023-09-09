@@ -8,7 +8,6 @@ import cartopy.feature as cfeature
 import tkinter.scrolledtext as st
 import matplotlib.pyplot as plt
 from ttkthemes import ThemedTk
-from sklearn.svm import SVR
 import cartopy.crs as ccrs
 from tkinter import ttk
 from tkinter import *
@@ -21,24 +20,11 @@ import os
 
 """
 MWAVE (METEOSAT Weather Alert and Visualization Environment)
-MWARM (METEOSAT Weather Alert and Remote Monitoring)
 """
 
 global counter, cnt
 cnt = 0
 counter = 0
-
-def info_predict():
-    global text_info, label_frame_info
-
-    category_info = "Category: " + category +"\n"
-    prediction_str = 'Short-term prediction'
-    
-    text_info = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_info.place(x=20,y=17)
-    text_info.insert(tk.INSERT, category_info)
-    text_info.insert(tk.INSERT, prediction_str)
-    text_info.configure(state ='disabled')
 
 def file_comb(n_files,step):
     global df_comb
@@ -54,9 +40,9 @@ def file_comb(n_files,step):
             lines = contents.split("\n")
             for j, line in enumerate(lines):
                 if line.strip():
-                    if i == index-n_files and j == 0:  # add title to new column
+                    if i == index-n_files and j == 0: 
                         files_to_combine.append(f"{line.strip()}  time\n")
-                    elif i != index-n_files and j == 0:  # skip first line for other files
+                    elif i != index-n_files and j == 0:  
                         continue
                     else:
                         files_to_combine.append(f"{line.strip()}  {time}\n")
@@ -64,7 +50,8 @@ def file_comb(n_files,step):
         f.writelines(files_to_combine)
     
     df_comb = pd.read_csv('combined_files.txt', delim_whitespace=' ', dtype='unicode')
-    df_comb = df_comb.astype({ 
+    df_comb = df_comb.replace({',': '.'}, regex=True)
+    df_comb = df_comb.astype({
     'LAT': float,
     'LON': float,
     'BT5': float,
@@ -89,11 +76,11 @@ def alert(user):
     global alert_label, counter
 
     if user == "Prec":
-        threshold = 3
+        threshold = 18
     if user == 'Hail':
         threshold = 3
     else:
-        threshold = 5
+        threshold = 3
 
     if (ellipse_df[user] > threshold).any():
         alert_label = tk.Label(root, text="\t\t------ALERT------", font=('calibri', 11, 'bold'))
@@ -158,7 +145,8 @@ def about_window():
     text_about = st.ScrolledText(about_win, width = 60, height = 36, font = ("calibri",10))
     text_about.place(x=35,y=15)
 
-    about_text = "thesis"
+    with open('about.txt', 'r') as file:
+        about_text = file.read()
 
     text_about.insert(tk.INSERT, about_text)
     text_about.configure(state ='disabled')
@@ -206,7 +194,7 @@ def display_ellipse(user):
         alert_var = 'AOD550nm'
         vmin = 0
         vmax =5
-        threshold = 4
+        threshold = 3
         bar = 'AOD'.format(threshold)
     elif user == 'Hail':
         category = 'Hail'
@@ -247,7 +235,7 @@ def display_ellipse(user):
     latitudes = df["LAT"].to_numpy()
     longitudes = df["LON"].to_numpy()
     values = df[user].to_numpy()
-    dangerous_points = np.column_stack((longitudes[values > threshold], latitudes[values > threshold]))
+    dangerous_points = np.column_stack((longitudes[values >= threshold], latitudes[values >= threshold]))
     
     if dangerous_points.shape[0] >= 3:
         dbscan = DBSCAN(eps=0.5, min_samples=3).fit(dangerous_points)
@@ -267,7 +255,6 @@ def display_ellipse(user):
             from sklearn.decomposition import PCA
             import matplotlib.patches as patches
 
-            # Inside your loop:
             for label in unique_labels:
                 if label != -1:
                     cluster_points = dangerous_points[labels == label]
@@ -320,7 +307,7 @@ def display(user):
     elif user == 'Hail':
         category = "Hail"
         vmin =0
-        vmax = 20
+        vmax = 3
     elif user == 'Prec':
         category = 'Precipitation'
         vmin = 0
@@ -344,7 +331,7 @@ def display(user):
     })
 
     df['Prec'][df['Prec']<0] = 0
-    # df = df.dropna()
+    df = df.dropna()
     df[user] = df[user].interpolate(method='linear')
 
     fig = plt.figure(figsize=(7,7))
@@ -396,8 +383,10 @@ def ellipse_file():
             rad_cc = (xct**2/(width/2.)**2) + (yct**2/(height/2.)**2)   
             points = np.array(xy)
 
-            ellipse_points = points[np.where(rad_cc <= 1.)[0]] 
+            epsilon = 1e-6
+            ellipse_points = points[np.where(rad_cc <= 1. + epsilon)[0]] 
             ellipse_df = df[df['LON'].isin(ellipse_points[:,0]) & df['LAT'].isin(ellipse_points[:,1])]
+
             all_ellipse_data = pd.concat([all_ellipse_data, ellipse_df], ignore_index=True)
 
     with open("ellipse_data.txt",'w') as f:
@@ -408,21 +397,26 @@ def cities_ellipse():
 
     cities_df = pd.read_csv("cities.csv", sep = ',')
     ellipse_file = pd.read_csv("ellipse_data.txt",delim_whitespace=True)
-    ellipse_lon = ellipse_file['LON']
-    ellipse_lat = ellipse_file['LAT']
 
-    d = 3
-    def truncate(f, n):
-        return math.floor(f * 10 ** n) / 10 ** n
-    
-    city_lat = cities_df['lat'].astype(float).apply(lambda number: truncate(number, d))
-    city_lng = cities_df['lng'].astype(float).apply(lambda number: truncate(number, d))
-    
-    cities = cities_df[city_lng.isin(ellipse_lon) & city_lat.isin(ellipse_lat)]
+    def is_city_in_coords(city_row, threshold=0.1):  
+        city_lat = city_row['lat']
+        city_lng = city_row['lng']
+        
+        lat_diff = abs(ellipse_file['LAT'] - city_lat)
+        lng_diff = abs(ellipse_file['LON'] - city_lng)
+        
+        is_near = (lat_diff <= threshold) & (lng_diff <= threshold)
+        
+        return is_near.any()
+
+    cities_df['is_in_coords'] = cities_df.apply(is_city_in_coords, axis=1)
+    cities = cities_df[cities_df['is_in_coords']]
+
     pd.options.mode.chained_assignment = None
+
     cities['city_info'] = cities['city'] + ', ' + cities['admin_name'] + ', ' + cities['country']
     affected_cities = cities['city_info'].to_string(index=False)    
-    
+
     text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
     text_city.place(x=20,y=175)
     if len(cities) == 0:
@@ -473,57 +467,6 @@ def refresh():
                 display_ellipse(user)
 
     root.after(1000, refresh)   
-
-def predict():
-    global category
-
-    if category == 'AOD550nm':
-        user = 'AOD550nm'  
-        vmin =0 
-        vmax =5   
-    elif category=='Hail':
-        user = 'Hail'  
-        vmin =0
-        vmax =20
-    elif category == 'Precipitation':
-        user = 'Prec'
-        vmin =0
-        vmax =20
-
-    plt.close()
-    df_comb = file_comb(8,1)
-    df_comb = df_comb.sort_index(ascending=True)
-    print('ok')
-    df = df_comb.dropna()
-    df = df[['LAT', 'LON', user]]
-    X = df[['LAT', 'LON',user]].values
-    y = df[user].values
-    
-# Train the SVR model
-    svm = SVR(kernel='linear')
-    svm.fit(X, y)
-
-    # Make predictions on the test set
-    y_pred = svm.predict(X)
-
-    fig = plt.figure(figsize=(6, 6))
-    ax = plt.axes(projection=ccrs.PlateCarree())
-    
-    cs = ax.tricontourf(df_comb['LON'], df_comb['LAT'], y_pred, vmin=vmin, vmax=vmax, locator=ticker.MaxNLocator(150),
-                        origin='lower',
-                        transform = ccrs.PlateCarree(),cmap='jet',extend='neither')
-    
-    ax.coastlines(resolution='10m')
-    ax.add_feature(cfeature.BORDERS, linestyle=':')
-    cbar_vmax = np.max(y_pred)
-    plt.colorbar(cs, shrink=0.5, extend='neither', ticks=np.linspace(vmin, cbar_vmax, num=7), format='%.1f')
-    plt.tight_layout()
-    plt.show(block=False)
-    
-    text_city = st.ScrolledText(root, width = 39, height = 8, font = ("calibri",10))
-    text_city.place(x=20,y=175)
-    text_city.configure(state ='disabled')
-    info_predict()
 
 def historical():
     if category == 'AOD550nm':
@@ -651,9 +594,6 @@ label_frame_alert.pack(expand='yes', fill='both')
 check = BooleanVar(root)
 checkbutton = ttk.Checkbutton(root, text='real-time', command=lambda: refresh(),variable = check)
 checkbutton.place(x=248,y=440)
-
-predict_button_prec = ttk.Button(root, text="predict", command=lambda: predict())
-predict_button_prec.place(x=10,y=405)
 
 hist_button_prec = ttk.Button(root, text="data 2h ago", command=lambda: historical())
 hist_button_prec.place(x=10,y=435)
